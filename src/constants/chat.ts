@@ -23,7 +23,9 @@ export const modelOptions: ModelOptions[] = [
   'gpt-3.5-turbo-1106',
   'gpt-4',
   'gpt-4-32k',
-  'gpt-4-1106-preview'
+  'gpt-4-1106-preview',
+  'mistral-medium',
+  'lzlv-70b-fp16-hf'
   // 'gpt-3.5-turbo-0301',
   // 'gpt-4-0314',
   // 'gpt-4-32k-0314',
@@ -45,6 +47,8 @@ export const modelMaxToken = {
   'gpt-4-32k-0314': 32768,
   'gpt-4-32k-0613': 32768,
   'gpt-4-1106-preview': 128000,
+  'mistral-medium': 32000,
+  'lzlv-70b-fp16-hf': 4096
 };
 
 export const modelCost = {
@@ -100,6 +104,14 @@ export const modelCost = {
     prompt: { price: 0.01, unit: 1000 },
     completion: { price: 0.03, unit: 1000 },
   },
+  'mistral-medium': {
+    prompt: { price: 2.78, unit: 1000000 },
+    completion: { price: 8.33, unit: 1000000 },
+  },
+  'lzlv-70b-fp16-hf': {
+    prompt: { price: 0.70, unit: 1000000 },
+    completion: { price: 0.90, unit: 1000000 },
+  }
 };
 
 export const defaultUserMaxToken = 4000;

@@ -41,6 +41,12 @@ export const getChatCompletion = async (
     }
   }
 
+  const modelmapping: Partial<Record<ModelOptions, string>> = {
+    'mistral-medium': 'mistralai/mistral-medium',
+    'lzlv-70b-fp16-hf': 'lizpreciatior/lzlv-70b-fp16-hf'
+  };
+  const model = modelmapping[config.model] || config.model;
+
   const response = await fetch(endpoint, {
     method: 'POST',
     headers,
@@ -48,6 +54,7 @@ export const getChatCompletion = async (
       messages,
       ...config,
       max_tokens: undefined,
+      model
     }),
   });
   if (!response.ok) throw new Error(await response.text());
@@ -94,6 +101,12 @@ export const getChatCompletionStream = async (
     }
   }
 
+  const modelmapping: Partial<Record<ModelOptions, string>> = {
+    'mistral-medium': 'mistralai/mistral-medium',
+    'lzlv-70b-fp16-hf': 'lizpreciatior/lzlv-70b-fp16-hf'
+  };
+  const model = modelmapping[config.model] || config.model;
+
   const response = await fetch(endpoint, {
     method: 'POST',
     headers,
@@ -102,6 +115,7 @@ export const getChatCompletionStream = async (
       ...config,
       max_tokens: undefined,
       stream: true,
+      model
     }),
   });
   if (response.status === 404 || response.status === 405) {

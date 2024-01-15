@@ -234,6 +234,10 @@
     margin-left: -1rem;
     position: absolute;
   }
+
+  .markdown em {
+    @apply dark:text-zinc-400;
+  }
 }
 
 :not(pre) > code.hljs,
