@@ -19,12 +19,17 @@ const CloneChat = React.memo(() => {
 
     if (chats) {
       const index = useStore.getState().currentChatIndex;
-      let title = `Copy of ${chats[index].title}`;
-      let i = 0;
+      const regex = /^(.+?)\s*(?:\((\d+)\))?$/;
+      let title = chats[index].title
+      const match = title.match(regex);
 
-      while (chats.some((chat) => chat.title === title)) {
-        i += 1;
-        title = `Copy ${i} of ${chats[index].title}`;
+      if (match){
+        const base = match[1].trim();
+        let i = match[2] ? parseInt(match[2], 10) : 0;
+        do {
+          i += 1;
+          title = `${base} (${i})`;
+        } while (chats.some((chat) => chat.title === title))
       }
 
       const clonedChat = JSON.parse(JSON.stringify(chats[index]));
@@ -34,7 +39,8 @@ const CloneChat = React.memo(() => {
       updatedChats.unshift(clonedChat);
 
       setChats(updatedChats);
-      setCurrentChatIndex(useStore.getState().currentChatIndex + 1);
+      // setCurrentChatIndex(useStore.getState().currentChatIndex + 1);
+      setCurrentChatIndex(useStore.getState().currentChatIndex + 0);
       setCloned(true);
 
       window.setTimeout(() => {
