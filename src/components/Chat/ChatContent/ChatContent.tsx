@@ -5,7 +5,7 @@ import useStore from '@store/store';
 import ScrollToBottomButton from './ScrollToBottomButton';
 import ChatTitle from './ChatTitle';
 import Message from './Message';
-import NewMessageButton from './Message/NewMessageButton';
+// import NewMessageButton from './Message/NewMessageButton';
 import CrossIcon from '@icon/CrossIcon';
 
 import useSubmit from '@hooks/useSubmit';
@@ -60,9 +60,9 @@ const ChatContent = () => {
             ref={saveRef}
           >
             {advancedMode && <ChatTitle />}
-            {!generating && advancedMode && messages?.length === 0 && (
+            {/* {!generating && advancedMode && messages?.length === 0 && (
               <NewMessageButton messageIndex={-1} />
-            )}
+            )} */}
             {messages?.map((message, index) => (
               (advancedMode || index !== 0 || message.role !== 'system') && (
                 <React.Fragment key={index}>
@@ -71,7 +71,7 @@ const ChatContent = () => {
                     content={message.content}
                     messageIndex={index}
                   />
-                  {!generating && advancedMode && <NewMessageButton messageIndex={index} />}
+                  {/* {!generating && advancedMode && <NewMessageButton messageIndex={index} />} */}
                 </React.Fragment>
               )
             ))}

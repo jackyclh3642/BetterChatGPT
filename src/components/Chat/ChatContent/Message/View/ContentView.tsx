@@ -65,29 +65,29 @@ const ContentView = memo(
       setChats(updatedChats);
     };
 
-    const handleMove = (direction: 'up' | 'down') => {
-      const updatedChats: ChatInterface[] = JSON.parse(
-        JSON.stringify(useStore.getState().chats)
-      );
-      const updatedMessages = updatedChats[currentChatIndex].messages;
-      const temp = updatedMessages[messageIndex];
-      if (direction === 'up') {
-        updatedMessages[messageIndex] = updatedMessages[messageIndex - 1];
-        updatedMessages[messageIndex - 1] = temp;
-      } else {
-        updatedMessages[messageIndex] = updatedMessages[messageIndex + 1];
-        updatedMessages[messageIndex + 1] = temp;
-      }
-      setChats(updatedChats);
-    };
+    // const handleMove = (direction: 'up' | 'down') => {
+    //   const updatedChats: ChatInterface[] = JSON.parse(
+    //     JSON.stringify(useStore.getState().chats)
+    //   );
+    //   const updatedMessages = updatedChats[currentChatIndex].messages;
+    //   const temp = updatedMessages[messageIndex];
+    //   if (direction === 'up') {
+    //     updatedMessages[messageIndex] = updatedMessages[messageIndex - 1];
+    //     updatedMessages[messageIndex - 1] = temp;
+    //   } else {
+    //     updatedMessages[messageIndex] = updatedMessages[messageIndex + 1];
+    //     updatedMessages[messageIndex + 1] = temp;
+    //   }
+    //   setChats(updatedChats);
+    // };
 
-    const handleMoveUp = () => {
-      handleMove('up');
-    };
+    // const handleMoveUp = () => {
+    //   handleMove('up');
+    // };
 
-    const handleMoveDown = () => {
-      handleMove('down');
-    };
+    // const handleMoveDown = () => {
+    //   handleMove('down');
+    // };
 
     const handleRefresh = () => {
       const updatedChats: ChatInterface[] = JSON.parse(
@@ -143,10 +143,10 @@ const ContentView = memo(
                 messageIndex === lastMessageIndex && (
                   <RefreshButton onClick={handleRefresh} />
                 )}
-              {messageIndex !== 0 && <UpButton onClick={handleMoveUp} />}
+              {/* {messageIndex !== 0 && <UpButton onClick={handleMoveUp} />}
               {messageIndex !== lastMessageIndex && (
                 <DownButton onClick={handleMoveDown} />
-              )}
+              )} */}
 
               <MarkdownModeButton />
               <CopyButton onClick={handleCopy} />
