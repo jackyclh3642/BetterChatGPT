@@ -137,10 +137,16 @@ export const generateDefaultChat = (
 ): ChatInterface => ({
   id: uuidv4(),
   title: title ? title : 'New Chat',
-  messages:
-    useStore.getState().defaultSystemMessage.length > 0
-      ? [{ role: 'system', content: useStore.getState().defaultSystemMessage }]
-      : [],
+  // messages: {
+  //   role: 'system',
+  //   content: '',
+  //   childId: 0,
+  //   children: [{childId: -1, role: 'system', content: useStore.getState().defaultSystemMessage, children: []}],
+  // },
+  messages: {childId: -1, role: 'system', content: useStore.getState().defaultSystemMessage, children: []},
+    // useStore.getState().defaultSystemMessage.length > 0
+    //   ? [{ role: 'system', content: useStore.getState().defaultSystemMessage }]
+    //   : [],
   config: { ...useStore.getState().defaultChatConfig },
   titleSet: false,
   folder,

@@ -5,6 +5,7 @@ import useStore from '@store/store';
 import PopupModal from '@components/PopupModal';
 import { submitShareGPT } from '@api/api';
 import { ShareGPTSubmitBodyInterface } from '@type/api';
+import { getMessages } from '@utils/chat';
 
 const ShareGPT = React.memo(() => {
   const { t } = useTranslation();
@@ -22,7 +23,8 @@ const ShareGPT = React.memo(() => {
           items.push({
             from: 'gpt',
             value: `<p><b>${t(
-              chats[currentChatIndex].messages[index].role
+              getMessages(chats[currentChatIndex])[index].role
+              // chats[currentChatIndex].messages[index].role
             )}</b></p>${message.innerHTML}`,
           });
         });

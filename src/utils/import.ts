@@ -90,43 +90,43 @@ export const validateExportV1 = (data: ExportV1): data is ExportV1 => {
 };
 
 // Convert OpenAI chat format to BetterChatGPT format
-export const convertOpenAIToBetterChatGPTFormat = (
-  openAIChat: OpenAIChat
-): ChatInterface => {
-  const messages: MessageInterface[] = [];
+// export const convertOpenAIToBetterChatGPTFormat = (
+//   openAIChat: OpenAIChat
+// ): ChatInterface => {
+//   const messages: MessageInterface[] = [];
 
-  // Traverse the chat tree and collect messages
-  const traverseTree = (id: string) => {
-    const node = openAIChat.mapping[id];
+//   // Traverse the chat tree and collect messages
+//   const traverseTree = (id: string) => {
+//     const node = openAIChat.mapping[id];
 
-    // Extract message if it exists
-    if (node.message) {
-      const { role } = node.message.author;
-      const content = node.message.content.parts?.join('') || '';
-      if (content.length > 0) messages.push({ role, content });
-    }
+//     // Extract message if it exists
+//     if (node.message) {
+//       const { role } = node.message.author;
+//       const content = node.message.content.parts?.join('') || '';
+//       if (content.length > 0) messages.push({ role, content });
+//     }
 
-    // Traverse the last child node if any children exist
-    if (node.children.length > 0) {
-      traverseTree(node.children[node.children.length - 1]);
-    }
-  };
+//     // Traverse the last child node if any children exist
+//     if (node.children.length > 0) {
+//       traverseTree(node.children[node.children.length - 1]);
+//     }
+//   };
 
-  // Start traversing the tree from the root node
-  const rootNode = openAIChat.mapping[Object.keys(openAIChat.mapping)[0]].id;
-  traverseTree(rootNode);
+//   // Start traversing the tree from the root node
+//   const rootNode = openAIChat.mapping[Object.keys(openAIChat.mapping)[0]].id;
+//   traverseTree(rootNode);
 
-  // Return the chat interface object
-  return {
-    id: uuidv4(),
-    title: openAIChat.title,
-    messages,
-    config: _defaultChatConfig,
-    titleSet: true,
-  };
-};
+//   // Return the chat interface object
+//   return {
+//     id: uuidv4(),
+//     title: openAIChat.title,
+//     messages,
+//     config: _defaultChatConfig,
+//     titleSet: true,
+//   };
+// };
 
-// Import OpenAI chat data and convert it to BetterChatGPT format
-export const importOpenAIChatExport = (openAIChatExport: OpenAIChat[]) => {
-  return openAIChatExport.map(convertOpenAIToBetterChatGPTFormat);
-};
+// // Import OpenAI chat data and convert it to BetterChatGPT format
+// export const importOpenAIChatExport = (openAIChatExport: OpenAIChat[]) => {
+//   return openAIChatExport.map(convertOpenAIToBetterChatGPTFormat);
+// };

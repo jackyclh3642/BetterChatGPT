@@ -32,6 +32,10 @@ import DeleteButton from './Button/DeleteButton';
 import MarkdownModeButton from './Button/MarkdownModeButton';
 
 import CodeBlock from '../CodeBlock';
+import { getMessages } from '@utils/chat';
+import LeftButton from './Button/LeftButton';
+import RightButton from './Button/RightButton';
+import { Role } from '@type/chat';
 
 const ContentView = memo(
   ({
@@ -40,7 +44,7 @@ const ContentView = memo(
     setIsEdit,
     messageIndex,
   }: {
-    role: string;
+    role: Role;
     content: string;
     setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
     messageIndex: number;
@@ -51,19 +55,39 @@ const ContentView = memo(
 
     const currentChatIndex = useStore((state) => state.currentChatIndex);
     const setChats = useStore((state) => state.setChats);
-    const lastMessageIndex = useStore((state) =>
-      state.chats ? state.chats[state.currentChatIndex].messages.length - 1 : 0
-    );
+    // const lastMessageIndex = useStore((state) =>
+    //   state.chats ? state.chats[state.currentChatIndex].messages.length - 1 : 0
+    // );
     const inlineLatex = useStore((state) => state.inlineLatex);
     const markdownMode = useStore((state) => state.markdownMode);
+    const messages = useStore(
+      (state) =>
+        // state.chats ? state.chats[state.currentChatIndex].messages : [],
+        state.chats ? getMessages(state.chats[state.currentChatIndex]) : []
+    );
+    const generating = useStore((state) => state.generating);
 
     const handleDelete = () => {
       const updatedChats: ChatInterface[] = JSON.parse(
         JSON.stringify(useStore.getState().chats)
       );
-      updatedChats[currentChatIndex].messages.splice(messageIndex, 1);
+      const parentMessage = getMessages(updatedChats[currentChatIndex])[messageIndex-1];
+      parentMessage.children.splice(parentMessage.childId, 1);
+      parentMessage.childId = Math.min(parentMessage.children.length - 1, parentMessage.childId);
+      // updatedChats[currentChatIndex].messages.splice(messageIndex, 1);
       setChats(updatedChats);
+      setIsDelete(false);
     };
+
+    const handleStartDelete = () => {
+      if (generating) return;
+      setIsDelete(true);
+    }
+
+    const handleStartEdit = () => {
+      if (generating) return;
+      setIsEdit(true);
+    }
 
     // const handleMove = (direction: 'up' | 'down') => {
     //   const updatedChats: ChatInterface[] = JSON.parse(
@@ -81,23 +105,51 @@ const ContentView = memo(
     //   setChats(updatedChats);
     // };
 
-    // const handleMoveUp = () => {
-    //   handleMove('up');
+    // const handleMoveLeft = () => {
+    //   if (generating) return;
+    //   const updatedChats: ChatInterface[] = JSON.parse(
+    //     JSON.stringify(useStore.getState().chats)
+    //   );
+    //   const parentMessage = getMessages(updatedChats[currentChatIndex])[messageIndex-1];
+    //   parentMessage.childId = Math.max(0, parentMessage.childId - 1);
+    //   // const 
+    //   // handleMove('up');
+    //   setChats(updatedChats);
     // };
 
-    // const handleMoveDown = () => {
-    //   handleMove('down');
+    // const handleMoveRightandRefresh = () => {
+    //   if (generating) return;
+    //   const updatedChats: ChatInterface[] = JSON.parse(
+    //     JSON.stringify(useStore.getState().chats)
+    //   );
+    //   const parentMessage = getMessages(updatedChats[currentChatIndex])[messageIndex-1];
+    //   if (parentMessage.childId === parentMessage.children.length - 1 && role === 'assistant') {
+    //     parentMessage.childId++;
+    //     parentMessage.children.push({
+    //       role, content: '', childId: -1, children: []})
+    //     setChats(updatedChats);
+    //     handleSubmit();
+    //     // handleRefresh();
+    //     // parentMessage.children.push({ role: parentMessage.role, content: '', childId: -1, children: []});
+    //     // setChats(updatedChats);
+    //   } else {
+    //     parentMessage.childId = Math.min(parentMessage.children.length - 1, parentMessage.childId + 1);
+    //     setChats(updatedChats);
+    //   }
+    //   // parentMessage.childId = Math.min(parentMessage.children.length - 1, parentMessage.childId + 1);
+    //   // const 
+    //   // handleMove('up');
     // };
 
-    const handleRefresh = () => {
-      const updatedChats: ChatInterface[] = JSON.parse(
-        JSON.stringify(useStore.getState().chats)
-      );
-      const updatedMessages = updatedChats[currentChatIndex].messages;
-      updatedMessages.splice(updatedMessages.length - 1, 1);
-      setChats(updatedChats);
-      handleSubmit();
-    };
+    // const handleRefresh = () => {
+    //   const updatedChats: ChatInterface[] = JSON.parse(
+    //     JSON.stringify(useStore.getState().chats)
+    //   );
+    //   const updatedMessages = updatedChats[currentChatIndex].messages;
+    //   updatedMessages.splice(updatedMessages.length - 1, 1);
+    //   setChats(updatedChats);
+    //   handleSubmit();
+    // };
 
     const handleCopy = () => {
       navigator.clipboard.writeText(content);
@@ -138,20 +190,27 @@ const ContentView = memo(
         <div className='flex justify-end gap-2 w-full mt-2'>
           {isDelete || (
             <>
-              {!useStore.getState().generating &&
-                role === 'assistant' &&
-                messageIndex === lastMessageIndex && (
+              {/* {!useStore.getState().generating &&
+                role === 'assistant' && (
                   <RefreshButton onClick={handleRefresh} />
-                )}
+                )} */}
               {/* {messageIndex !== 0 && <UpButton onClick={handleMoveUp} />}
               {messageIndex !== lastMessageIndex && (
                 <DownButton onClick={handleMoveDown} />
               )} */}
 
-              <MarkdownModeButton />
+              {/* {messageIndex !== 0 && <>
+                <LeftButton onClick={handleMoveLeft}/>
+                <div className = 'center dark:text-gray-400 md:invisible md:group-hover:visible visible'>
+                  {messages[messageIndex-1].childId + 1} / {messages[messageIndex-1].children.length}
+                </div>
+                <RightButton onClick={handleMoveRightandRefresh}/>
+              </>} */}
+
+              {/* <MarkdownModeButton /> */}
               <CopyButton onClick={handleCopy} />
-              <EditButton setIsEdit={setIsEdit} />
-              <DeleteButton setIsDelete={setIsDelete} />
+              <EditButton onClick={handleStartEdit} />
+              {messageIndex !== 0 && (<DeleteButton onClick={handleStartDelete} />)}
             </>
           )}
           {isDelete && (

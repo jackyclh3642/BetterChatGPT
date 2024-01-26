@@ -12,6 +12,7 @@ import useSubmit from '@hooks/useSubmit';
 import DownloadChat from './DownloadChat';
 import CloneChat from './CloneChat';
 import ShareGPT from '@components/ShareGPT';
+import { getMessages } from '@utils/chat';
 
 const ChatContent = () => {
   const inputRole = useStore((state) => state.inputRole);
@@ -21,7 +22,8 @@ const ChatContent = () => {
     state.chats.length > 0 &&
     state.currentChatIndex >= 0 &&
     state.currentChatIndex < state.chats.length
-      ? state.chats[state.currentChatIndex].messages
+      ? getMessages(state.chats[state.currentChatIndex])
+      // state.chats[state.currentChatIndex].messages
       : []
   );
   const stickyIndex = useStore((state) =>
@@ -29,7 +31,8 @@ const ChatContent = () => {
     state.chats.length > 0 &&
     state.currentChatIndex >= 0 &&
     state.currentChatIndex < state.chats.length
-      ? state.chats[state.currentChatIndex].messages.length
+      ? getMessages(state.chats[state.currentChatIndex]).length
+      // state.chats[state.currentChatIndex].messages.length
       : 0
   );
   const advancedMode = useStore((state) => state.advancedMode);

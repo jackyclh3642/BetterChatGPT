@@ -6,15 +6,17 @@ import BaseButton from './BaseButton';
 
 const EditButton = memo(
   ({
-    setIsEdit,
+    // setIsEdit,
+    onClick,
   }: {
-    setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
+    // setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
+    onClick: React.MouseEventHandler<HTMLButtonElement>;
   }) => {
     return (
       <BaseButton
         icon={<EditIcon2 />}
         buttonProps={{ 'aria-label': 'edit message' }}
-        onClick={() => setIsEdit(true)}
+        onClick={onClick}
       />
     );
   }

@@ -3,6 +3,7 @@ import useStore from '@store/store';
 
 import ContentView from './View/ContentView';
 import EditView from './View/EditView';
+import { Role } from '@type/chat';
 
 const MessageContent = ({
   role,
@@ -10,7 +11,7 @@ const MessageContent = ({
   messageIndex,
   sticky = false,
 }: {
-  role: string;
+  role: Role;
   content: string;
   messageIndex: number;
   sticky?: boolean;

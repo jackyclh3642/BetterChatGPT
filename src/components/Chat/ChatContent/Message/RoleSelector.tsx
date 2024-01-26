@@ -6,6 +6,7 @@ import DownChevronArrow from '@icon/DownChevronArrow';
 import { ChatInterface, Role, roles } from '@type/chat';
 
 import useHideOnOutsideClick from '@hooks/useHideOnOutsideClick';
+import { getMessages } from '@utils/chat';
 
 const RoleSelector = React.memo(
   ({
@@ -54,7 +55,8 @@ const RoleSelector = React.memo(
                     const updatedChats: ChatInterface[] = JSON.parse(
                       JSON.stringify(useStore.getState().chats)
                     );
-                    updatedChats[currentChatIndex].messages[messageIndex].role =
+                    // updatedChats[currentChatIndex].messages[messageIndex].role =
+                    getMessages(updatedChats[currentChatIndex])[messageIndex].role =
                       r;
                     setChats(updatedChats);
                   } else {

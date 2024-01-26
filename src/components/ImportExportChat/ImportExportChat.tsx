@@ -6,7 +6,7 @@ import PopupModal from '@components/PopupModal';
 
 import ImportChat from './ImportChat';
 import ExportChat from './ExportChat';
-import ImportChatOpenAI from './ImportChatOpenAI';
+// import ImportChatOpenAI from './ImportChatOpenAI';
 
 const ImportExportChat = () => {
   const { t } = useTranslation();
@@ -32,8 +32,8 @@ const ImportExportChat = () => {
           <div className='p-6 border-b border-gray-200 dark:border-gray-600'>
             <ImportChat />
             <ExportChat />
-            <div className='border-t my-3 border-gray-200 dark:border-gray-600' />
-            <ImportChatOpenAI setIsModalOpen={setIsModalOpen} />
+            {/* <div className='border-t my-3 border-gray-200 dark:border-gray-600' />
+            <ImportChatOpenAI setIsModalOpen={setIsModalOpen} /> */}
           </div>
         </PopupModal>
       )}

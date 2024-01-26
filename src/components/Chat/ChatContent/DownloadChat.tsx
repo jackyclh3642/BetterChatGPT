@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import useStore from '@store/store';
 import PopupModal from '@components/PopupModal';
 import {
-  chatToMarkdown,
+  // chatToMarkdown,
   downloadImg,
   downloadMarkdown,
   // downloadPDF,
@@ -82,7 +82,7 @@ const DownloadChat = React.memo(
                 <PdfIcon />
                 PDF
               </button> */}
-              <button
+              {/* <button
                 className='btn btn-neutral gap-2'
                 aria-label='markdown'
                 onClick={async () => {
@@ -106,7 +106,7 @@ const DownloadChat = React.memo(
               >
                 <MarkdownIcon />
                 Markdown
-              </button>
+              </button> */}
               <button
                 className='btn btn-neutral gap-2'
                 aria-label='json'

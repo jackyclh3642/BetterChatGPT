@@ -1,5 +1,5 @@
 import html2canvas from 'html2canvas';
-import { ChatInterface } from '@type/chat';
+import { ChatInterface, MessageInterface } from '@type/chat';
 
 // Function to convert HTML to an image using html2canvas
 export const htmlToImg = async (html: HTMLDivElement) => {
@@ -23,14 +23,14 @@ export const downloadImg = (imgData: string, fileName: string) => {
   link.remove();
 };
 
-// Function to convert a chat object to markdown format
-export const chatToMarkdown = (chat: ChatInterface) => {
-  let markdown = `# ${chat.title}\n\n`;
-  chat.messages.forEach((message) => {
-    markdown += `### **${message.role}**:\n\n${message.content}\n\n---\n\n`;
-  });
-  return markdown;
-};
+// // Function to convert a chat object to markdown format
+// export const chatToMarkdown = (chat: ChatInterface) => {
+//   let markdown = `# ${chat.title}\n\n`;
+//   chat.messages.forEach((message) => {
+//     markdown += `### **${message.role}**:\n\n${message.content}\n\n---\n\n`;
+//   });
+//   return markdown;
+// };
 
 // Function to download the markdown content as a file
 export const downloadMarkdown = (markdown: string, fileName: string) => {
@@ -40,4 +40,15 @@ export const downloadMarkdown = (markdown: string, fileName: string) => {
   link.download = fileName;
   link.click();
   link.remove();
+};
+
+export const getMessages = (chat: ChatInterface) => {
+  const messages: MessageInterface[] = [];
+  let currentMessage: MessageInterface | undefined = chat.messages;
+  while (currentMessage) {
+    messages.push(currentMessage);
+    currentMessage = currentMessage.children.at(currentMessage.childId);
+  }
+  // messages.shift(); // remove the first dummy message
+  return messages;
 };

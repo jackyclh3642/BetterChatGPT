@@ -7,6 +7,8 @@ import { parseEventSource } from '@api/helper';
 import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
 import { _defaultChatConfig } from '@constants/chat';
 import { officialAPIEndpoint } from '@constants/auth';
+import { getMessages } from '@utils/chat';
+import { get } from 'lodash';
 
 const useSubmit = () => {
   const { t, i18n } = useTranslation('api');
@@ -55,23 +57,25 @@ const useSubmit = () => {
     const chats = useStore.getState().chats;
     if (generating || !chats) return;
 
-    const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
+    // const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
 
-    updatedChats[currentChatIndex].messages.push({
-      role: 'assistant',
-      content: '',
-    });
+    // updatedChats[currentChatIndex].messages.push({
+    //   role: 'assistant',
+    //   content: '',
+    // });
 
-    setChats(updatedChats);
+    // setChats(updatedChats);
     setGenerating(true);
 
     try {
       let stream;
-      if (chats[currentChatIndex].messages.length === 0)
+      // if (chats[currentChatIndex].messages.length === 0)
+      if (getMessages(chats[currentChatIndex]).length === 0)
         throw new Error('No messages submitted!');
 
       const messages = limitMessageTokens(
-        chats[currentChatIndex].messages,
+        getMessages(chats[currentChatIndex]),
+        // chats[currentChatIndex].messages,
         chats[currentChatIndex].config.max_tokens,
         chats[currentChatIndex].config.model
       );
@@ -131,7 +135,10 @@ const useSubmit = () => {
             const updatedChats: ChatInterface[] = JSON.parse(
               JSON.stringify(useStore.getState().chats)
             );
-            const updatedMessages = updatedChats[currentChatIndex].messages;
+            // const updatedMessages = updatedChats[currentChatIndex].messages;
+            const updatedMessages = getMessages(
+              updatedChats[currentChatIndex]
+            );
             updatedMessages[updatedMessages.length - 1].content += resultString;
             setChats(updatedChats);
           }
@@ -151,7 +158,7 @@ const useSubmit = () => {
 
       if (currChats && countTotalTokens) {
         const model = currChats[currentChatIndex].config.model;
-        const messages = currChats[currentChatIndex].messages;
+        const messages = getMessages(currChats[currentChatIndex]);
         updateTotalTokenUsed(
           model,
           messages.slice(0, -1),
@@ -165,15 +172,18 @@ const useSubmit = () => {
         currChats &&
         !currChats[currentChatIndex]?.titleSet
       ) {
-        const messages_length = currChats[currentChatIndex].messages.length;
+        // const messages_length = currChats[currentChatIndex].messages.length;
+        const messages_length = getMessages(currChats[currentChatIndex]).length;
         const assistant_message =
-          currChats[currentChatIndex].messages[messages_length - 1].content;
+          getMessages(currChats[currentChatIndex])[messages_length - 1].content;
         const user_message =
-          currChats[currentChatIndex].messages[messages_length - 2].content;
+          getMessages(currChats[currentChatIndex])[messages_length - 2].content;
 
         const message: MessageInterface = {
           role: 'user',
           content: `Generate a title in less than 6 words for the following message (language: ${i18n.language}):\n"""\nUser: ${user_message}\nAssistant: ${assistant_message}\n"""`,
+          childId: -1, // Dummy childId
+          children: [],
         };
 
         let title = (await generateTitle([message])).trim();
@@ -193,6 +203,8 @@ const useSubmit = () => {
           updateTotalTokenUsed(model, [message], {
             role: 'assistant',
             content: title,
+            childId: -1,
+            children: [],
           });
         }
       }

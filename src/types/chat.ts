@@ -5,15 +5,17 @@ export type Role = 'user' | 'assistant' | 'system';
 export const roles: Role[] = ['user', 'assistant', 'system'];
 
 export interface MessageInterface {
+  childId: number;
   role: Role;
   content: string;
+  children: MessageInterface[];
 }
 
 export interface ChatInterface {
   id: string;
   title: string;
   folder?: string;
-  messages: MessageInterface[];
+  messages: MessageInterface;
   config: ConfigInterface;
   titleSet: boolean;
 }

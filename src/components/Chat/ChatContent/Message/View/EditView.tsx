@@ -9,6 +9,7 @@ import { ChatInterface } from '@type/chat';
 import PopupModal from '@components/PopupModal';
 import TokenCount from '@components/TokenCount';
 import CommandPrompt from '../CommandPrompt';
+import { getMessages } from '@utils/chat';
 
 const EditView = ({
   content,
@@ -68,13 +69,34 @@ const EditView = ({
     const updatedChats: ChatInterface[] = JSON.parse(
       JSON.stringify(useStore.getState().chats)
     );
-    const updatedMessages = updatedChats[currentChatIndex].messages;
+    // const updatedMessages = updatedChats[currentChatIndex].messages;
+    const updatedMessages = getMessages(updatedChats[currentChatIndex]);
     if (sticky) {
-      updatedMessages.push({ role: inputRole, content: _content });
+      const parentMessage = updatedMessages[updatedMessages.length - 1];
+      parentMessage.children.push({
+        role: inputRole,
+        content: _content,
+        childId: -1,
+        children: [],
+      });
+      parentMessage.childId = parentMessage.children.length - 1;
+      // updatedMessages.at(-1)?.children.push({ role: inputRole, content: _content, childId: -1, children: []});
       _setContent('');
       resetTextAreaHeight();
     } else {
+      const editedMessage = updatedMessages[messageIndex];
+      if (messageIndex === 0 || editedMessage.role === 'assistant' || editedMessage.children.length === 0) {
       updatedMessages[messageIndex].content = _content;
+      } else {
+        const parentMessage = updatedMessages[messageIndex-1];
+        parentMessage.children.push({
+          role: editedMessage.role,
+          content: _content,
+          childId: -1,
+          children: []
+        })
+        parentMessage.childId = parentMessage.children.length - 1;
+      }
       setIsEdit(false);
     }
     setChats(updatedChats);
@@ -82,25 +104,58 @@ const EditView = ({
 
   const { handleSubmit } = useSubmit();
   const handleGenerate = () => {
-    if (useStore.getState().generating) return;
+    handleSave();
+    // if (useStore.getState().generating) return;
+    // const updatedChats: ChatInterface[] = JSON.parse(
+    //   JSON.stringify(useStore.getState().chats)
+    // );
+    // const updatedMessages = getMessages(updatedChats[currentChatIndex]);
+    // if (sticky) {
+    //   if (_content !== '') {
+    //     updatedMessages.at(-1)?.children.push({
+    //       role: inputRole,
+    //       content: _content,
+    //       childId: 0,
+    //       children: [{ role: 'assistant', content: '', childId: -1, children: []}]});
+    //   }
+    //   _setContent('');
+    //   resetTextAreaHeight();
+    // } else {
+    //   const parentMessage = updatedMessages[messageIndex-1];
+    //   let currentMessage = updatedMessages[messageIndex];
+    //   if (currentMessage.role === 'assistant') {
+    //     currentMessage.content = _content;
+    //   } else {
+    //     parentMessage.children.push({
+    //       role: currentMessage.role,
+    //       content: _content,
+    //       childId: -1,
+    //       children: []
+    //     })
+    //   }
+      
+    //   updatedMessages[messageIndex].children.push(
+    //     { role: 'assistant', content: '', childId: -1, children: []}
+    //   )
+    //   updatedMessages[messageIndex].childId = updatedMessages[messageIndex].children.length - 1;
+    //   // updatedChats[currentChatIndex].messages = updatedMessages.slice(
+    //   //   0,
+    //   //   messageIndex + 1
+    //   // );
+    //   setIsEdit(false);
+    // }
     const updatedChats: ChatInterface[] = JSON.parse(
       JSON.stringify(useStore.getState().chats)
     );
-    const updatedMessages = updatedChats[currentChatIndex].messages;
-    if (sticky) {
-      if (_content !== '') {
-        updatedMessages.push({ role: inputRole, content: _content });
-      }
-      _setContent('');
-      resetTextAreaHeight();
-    } else {
-      updatedMessages[messageIndex].content = _content;
-      updatedChats[currentChatIndex].messages = updatedMessages.slice(
-        0,
-        messageIndex + 1
-      );
-      setIsEdit(false);
-    }
+    const updatedMessages = getMessages(updatedChats[currentChatIndex]);
+    const lastMessage = updatedMessages[updatedMessages.length - 1];
+    lastMessage.children.push({
+      role: 'assistant',
+      content: '',
+      childId: -1,
+      children: [],
+    });
+    lastMessage.childId = lastMessage.children.length - 1;
     setChats(updatedChats);
     handleSubmit();
   };

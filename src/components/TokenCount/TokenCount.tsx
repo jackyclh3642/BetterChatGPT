@@ -4,13 +4,15 @@ import { shallow } from 'zustand/shallow';
 
 import countTokens from '@utils/messageUtils';
 import { modelCost } from '@constants/chat';
+import { getMessages } from '@utils/chat';
 
 const TokenCount = React.memo(() => {
   const [tokenCount, setTokenCount] = useState<number>(0);
   const generating = useStore((state) => state.generating);
   const messages = useStore(
     (state) =>
-      state.chats ? state.chats[state.currentChatIndex].messages : [],
+      // state.chats ? state.chats[state.currentChatIndex].messages : [],
+      state.chats ? getMessages(state.chats[state.currentChatIndex]) : [],
     shallow
   );
 

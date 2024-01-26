@@ -52,7 +52,7 @@ export const getChatCompletion = async (
     method: 'POST',
     headers,
     body: JSON.stringify({
-      messages,
+      messages: messages.map((message)=>({role: message.role, content: message.content})),
       ...config,
       max_tokens: undefined,
       model
@@ -113,7 +113,7 @@ export const getChatCompletionStream = async (
     method: 'POST',
     headers,
     body: JSON.stringify({
-      messages,
+      messages: messages.map((message)=>({role: message.role, content: message.content})),
       ...config,
       max_tokens: undefined,
       stream: true,

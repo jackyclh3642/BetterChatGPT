@@ -6,15 +6,17 @@ import BaseButton from './BaseButton';
 
 const DeleteButton = memo(
   ({
-    setIsDelete,
+    onClick,
   }: {
-    setIsDelete: React.Dispatch<React.SetStateAction<boolean>>;
+    // setIsDelete: React.Dispatch<React.SetStateAction<boolean>>;
+    onClick: React.MouseEventHandler<HTMLButtonElement>
   }) => {
     return (
       <BaseButton
         icon={<DeleteIcon />}
         buttonProps={{ 'aria-label': 'delete message' }}
-        onClick={() => setIsDelete(true)}
+        // onClick={() => setIsDelete(true)}
+        onClick={onClick}
       />
     );
   }
