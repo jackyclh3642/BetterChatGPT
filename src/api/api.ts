@@ -43,7 +43,8 @@ export const getChatCompletion = async (
 
   const modelmapping: Partial<Record<ModelOptions, string>> = {
     'mistral-medium': 'mistralai/mistral-medium',
-    'lzlv-70b-fp16-hf': 'lizpreciatior/lzlv-70b-fp16-hf'
+    'lzlv-70b-fp16-hf': 'lizpreciatior/lzlv-70b-fp16-hf',
+    'mixtral-8x7b-instruct': 'mistralai/mixtral-8x7b-instruct'
   };
   const model = modelmapping[config.model] || config.model;
 
@@ -103,7 +104,8 @@ export const getChatCompletionStream = async (
 
   const modelmapping: Partial<Record<ModelOptions, string>> = {
     'mistral-medium': 'mistralai/mistral-medium',
-    'lzlv-70b-fp16-hf': 'lizpreciatior/lzlv-70b-fp16-hf'
+    'lzlv-70b-fp16-hf': 'lizpreciatior/lzlv-70b-fp16-hf',
+    'mixtral-8x7b-instruct': 'mistralai/mixtral-8x7b-instruct'
   };
   const model = modelmapping[config.model] || config.model;
 
