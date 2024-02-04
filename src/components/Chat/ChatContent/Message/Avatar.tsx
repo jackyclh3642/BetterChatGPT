@@ -9,6 +9,7 @@ const Avatar = React.memo(({ role }: { role: Role }) => {
       {role === 'user' && <UserAvatar />}
       {role === 'assistant' && <AssistantAvatar />}
       {role === 'system' && <SystemAvatar />}
+      {role === 'jailbreak' && <SystemAvatar />}
     </div>
   );
 });

@@ -4,7 +4,7 @@ export const parseEventSource = (
   data: string
 ): '[DONE]' | EventSourceData[] => {
   const result = data
-    .split('\n\n')
+    .split(/\r?\n\r?\n/)
     .filter(Boolean)
     .map((chunk) => {
       const jsonString = chunk

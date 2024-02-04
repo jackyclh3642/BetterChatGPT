@@ -54,8 +54,9 @@ const useSubmit = () => {
   };
 
   const handleSubmit = async () => {
-    const chats = useStore.getState().chats;
-    if (generating || !chats) return;
+    // const chats = useStore.getState().chats;
+    const dummyChats: ChatInterface[] = JSON.parse(JSON.stringify(useStore.getState().chats));
+    if (generating || !dummyChats) return;
 
     // const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
 
@@ -70,16 +71,29 @@ const useSubmit = () => {
     try {
       let stream;
       // if (chats[currentChatIndex].messages.length === 0)
-      if (getMessages(chats[currentChatIndex]).length === 0)
+      if (getMessages(dummyChats[currentChatIndex]).length === 0)
         throw new Error('No messages submitted!');
 
       const messages = limitMessageTokens(
-        getMessages(chats[currentChatIndex]),
+        getMessages(dummyChats[currentChatIndex]),
         // chats[currentChatIndex].messages,
-        chats[currentChatIndex].config.max_tokens,
-        chats[currentChatIndex].config.model
+        dummyChats[currentChatIndex].config.max_tokens,
+        dummyChats[currentChatIndex].config.model
       );
       if (messages.length === 0) throw new Error('Message exceed max token!');
+
+      // sort the messages such that the jailbreak message is always last
+      messages.sort((a, b) => {
+        if (a.role === 'jailbreak') return 1;
+        if (b.role === 'jailbreak') return -1;
+        return 0;
+      });
+
+      // Set the jailbreak role to system for chat completion
+      messages.forEach((message) => {
+        if (message.role === 'jailbreak') message.role = 'system';
+      });
+      // console.log('messages', messages)
 
       // no api key (free)
       if (!apiKey || apiKey.length === 0) {
@@ -92,14 +106,14 @@ const useSubmit = () => {
         stream = await getChatCompletionStream(
           useStore.getState().apiEndpoint,
           messages,
-          chats[currentChatIndex].config
+          dummyChats[currentChatIndex].config
         );
       } else if (apiKey) {
         // own apikey
         stream = await getChatCompletionStream(
           useStore.getState().apiEndpoint,
           messages,
-          chats[currentChatIndex].config,
+          dummyChats[currentChatIndex].config,
           apiKey
         );
       }

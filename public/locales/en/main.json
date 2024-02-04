@@ -18,6 +18,7 @@
   "user": "User",
   "assistant": "Assistant",
   "system": "System",
+  "jailbreak": "Jailbreak",
   "newChat": "New Chat",
   "lightMode": "Light Mode",
   "darkMode": "Dark Mode",
