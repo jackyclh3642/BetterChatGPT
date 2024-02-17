@@ -109,6 +109,8 @@ export const getChatCompletionStream = async (
   };
   const model = modelmapping[config.model] || config.model;
 
+  console.log(messages.map((message)=>({role: message.role, content: message.content})))
+
   const response = await fetch(endpoint, {
     method: 'POST',
     headers,

@@ -82,6 +82,9 @@ const useSubmit = () => {
       );
       if (messages.length === 0) throw new Error('Message exceed max token!');
 
+      // pop the last message if it's empty
+      if (messages[messages.length - 1].content === '') messages.pop();
+
       // sort the messages such that the jailbreak message is always last
       messages.sort((a, b) => {
         if (a.role === 'jailbreak') return 1;
