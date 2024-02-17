@@ -12,9 +12,11 @@ import {
   modelOptions,
   _defaultChatConfig,
 } from '@constants/chat';
-import { ExportV1, OpenAIChat } from '@type/export';
+// import { ExportV1, OpenAIChat } from '@type/export';
+import { ExportV1 } from '@type/export';
 
 export const validateAndFixChats = (chats: any): chats is ChatInterface[] => {
+  
   if (!Array.isArray(chats)) return false;
 
   for (const chat of chats) {
@@ -31,14 +33,30 @@ export const validateAndFixChats = (chats: any): chats is ChatInterface[] => {
   return true;
 };
 
-const validateMessage = (messages: MessageInterface[]) => {
-  if (!Array.isArray(messages)) return false;
-  for (const message of messages) {
-    if (!(typeof message.content === 'string')) return false;
-    if (!(typeof message.role === 'string')) return false;
-    if (!roles.includes(message.role)) return false;
+const validateMessage = (message: MessageInterface) => {
+  if (!(typeof message === 'object')) return false;
+
+  if (!(typeof message.childId === 'number')) return false;
+  if (!(typeof message.role === 'string')) return false;
+  if (!roles.includes(message.role)) return false;
+  if (!(typeof message.content === 'string')) return false;
+
+  if(!Array.isArray(message.children)) return false;
+  for (const child of message.children) {
+    if (!validateMessage(child)) return false;
   }
+
+  if (message.childId === -1 && message.children.length === 0) return true;
+  if (message.childId < 0 || message.childId >= message.children.length) message.childId = message.children.length - 1;
   return true;
+
+  // if (!Array.isArray(messages)) return false;
+  // for (const message of messages) {
+  //   if (!(typeof message.content === 'string')) return false;
+  //   if (!(typeof message.role === 'string')) return false;
+  //   if (!roles.includes(message.role)) return false;
+  // }
+  // return true;
 };
 
 const validateAndFixChatConfig = (config: ConfigInterface) => {
