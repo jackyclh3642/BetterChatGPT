@@ -201,6 +201,7 @@ const useSubmit = () => {
           content: `Generate a title in less than 6 words for the following message (language: ${i18n.language}):\n"""\nUser: ${user_message}\nAssistant: ${assistant_message}\n"""`,
           childId: -1, // Dummy childId
           children: [],
+          favorite: false,
         };
 
         let title = (await generateTitle([message])).trim();
@@ -222,6 +223,7 @@ const useSubmit = () => {
             content: title,
             childId: -1,
             children: [],
+            favorite: false
           });
         }
       }

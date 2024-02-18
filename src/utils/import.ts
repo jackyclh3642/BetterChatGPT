@@ -40,6 +40,7 @@ const validateMessage = (message: MessageInterface) => {
   if (!(typeof message.role === 'string')) return false;
   if (!roles.includes(message.role)) return false;
   if (!(typeof message.content === 'string')) return false;
+  if (!(typeof message.favorite === 'boolean')) message.favorite = false;
 
   if(!Array.isArray(message.children)) return false;
   for (const child of message.children) {

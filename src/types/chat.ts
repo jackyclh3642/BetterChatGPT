@@ -6,6 +6,7 @@ export const roles: Role[] = ['user', 'assistant', 'system', 'jailbreak'];
 
 export interface MessageInterface {
   childId: number;
+  favorite: boolean;
   role: Role;
   content: string;
   children: MessageInterface[];

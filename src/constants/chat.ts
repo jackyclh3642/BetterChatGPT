@@ -143,7 +143,7 @@ export const generateDefaultChat = (
   //   childId: 0,
   //   children: [{childId: -1, role: 'system', content: useStore.getState().defaultSystemMessage, children: []}],
   // },
-  messages: {childId: -1, role: 'system', content: useStore.getState().defaultSystemMessage, children: []},
+  messages: {childId: -1, role: 'system', content: useStore.getState().defaultSystemMessage, children: [], favorite: false},
     // useStore.getState().defaultSystemMessage.length > 0
     //   ? [{ role: 'system', content: useStore.getState().defaultSystemMessage }]
     //   : [],

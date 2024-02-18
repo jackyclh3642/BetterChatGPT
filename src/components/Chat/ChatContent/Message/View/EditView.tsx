@@ -78,6 +78,7 @@ const EditView = ({
         content: _content,
         childId: -1,
         children: [],
+        favorite: false,
       });
       parentMessage.childId = parentMessage.children.length - 1;
       // updatedMessages.at(-1)?.children.push({ role: inputRole, content: _content, childId: -1, children: []});
@@ -93,7 +94,8 @@ const EditView = ({
           role: editedMessage.role,
           content: _content,
           childId: -1,
-          children: []
+          children: [],
+          favorite: false,
         })
         parentMessage.childId = parentMessage.children.length - 1;
       }
@@ -154,6 +156,7 @@ const EditView = ({
       content: '',
       childId: -1,
       children: [],
+      favorite: false,
     });
     lastMessage.childId = lastMessage.children.length - 1;
     setChats(updatedChats);
