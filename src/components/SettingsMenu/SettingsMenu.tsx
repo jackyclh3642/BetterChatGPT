@@ -10,6 +10,7 @@ import LanguageSelector from '@components/LanguageSelector';
 import AutoTitleToggle from './AutoTitleToggle';
 import AdvancedModeToggle from './AdvencedModeToggle';
 import InlineLatexToggle from './InlineLatexToggle';
+import SystemJailbreakToggle from './SystemJailbreakToggle';
 
 import PromptLibraryMenu from '@components/PromptLibraryMenu';
 import ChatConfigMenu from '@components/ChatConfigMenu';
@@ -51,6 +52,7 @@ const SettingsMenu = () => {
               <InlineLatexToggle />
               <AdvancedModeToggle />
               <TotalTokenCostToggle />
+              <SystemJailbreakToggle />
             </div>
             <ClearConversation />
             <PromptLibraryMenu />

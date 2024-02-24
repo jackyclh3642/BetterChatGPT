@@ -21,23 +21,45 @@ const ApiMenu = ({
   const setApiKey = useStore((state) => state.setApiKey);
   const apiEndpoint = useStore((state) => state.apiEndpoint);
   const setApiEndpoint = useStore((state) => state.setApiEndpoint);
+  const setAdditionalBodyParameters = useStore((state) => state.setAdditionalBodyParameters);
 
   const [_apiKey, _setApiKey] = useState<string>(apiKey || '');
   const [_apiEndpoint, _setApiEndpoint] = useState<string>(apiEndpoint);
   const [_customEndpoint, _setCustomEndpoint] = useState<boolean>(
     !availableEndpoints.includes(apiEndpoint)
   );
+  const [_additionalBodyParameters, _setAdditionalBodyParameters] = useState<string>(
+    useStore.getState().additionalBodyParameters
+  );
 
   const handleSave = () => {
     setApiKey(_apiKey);
     setApiEndpoint(_apiEndpoint);
     setIsModalOpen(false);
+    setAdditionalBodyParameters(_additionalBodyParameters);
   };
 
   const handleToggleCustomEndpoint = () => {
     if (_customEndpoint) _setApiEndpoint(defaultAPIEndpoint);
     else _setApiEndpoint('');
     _setCustomEndpoint((prev) => !prev);
+  };
+
+  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
+    e.target.style.maxHeight = `${e.target.scrollHeight}px`;
+  };
+
+  const handleOnFocus = (e: React.FocusEvent<HTMLTextAreaElement, Element>) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
+    e.target.style.maxHeight = `${e.target.scrollHeight}px`;
+  };
+
+  const handleOnBlur = (e: React.FocusEvent<HTMLTextAreaElement, Element>) => {
+    e.target.style.height = 'auto';
+    e.target.style.maxHeight = '2.5rem';
   };
 
   return (
@@ -78,7 +100,7 @@ const ApiMenu = ({
           )}
         </div>
 
-        <div className='flex gap-2 items-center justify-center mt-2'>
+        <div className='flex gap-2 items-center justify-center mt-2 mb-6'>
           <div className='min-w-fit text-gray-900 dark:text-gray-300 text-sm'>
             {t('apiKey.inputLabel', { ns: 'api' })}
           </div>
@@ -90,6 +112,24 @@ const ApiMenu = ({
               _setApiKey(e.target.value);
             }}
           />
+        </div>
+
+        <div>
+          <div className='block text-sm font-medium text-gray-900 dark:text-white'>
+              Additional Body Parameters
+          </div>
+          <textarea
+            className='my-2 mx-0 px-2 resize-none rounded-lg bg-transparent overflow-y-hidden leading-7 p-1 border border-gray-400/50 focus:ring-1 focus:ring-blue w-full max-h-10 transition-all text-sm text-gray-900 dark:text-gray-300'
+            onFocus={handleOnFocus}
+            onBlur={handleOnBlur}
+            onChange={(e) => {
+              // _setAdditionalBodyParameters(JSON.parse(e.target.value));
+              _setAdditionalBodyParameters(e.target.value);
+            }}
+            onInput={handleInput}
+            value={_additionalBodyParameters}
+            rows={1}
+          ></textarea>
         </div>
 
         <div className='min-w-fit text-gray-900 dark:text-gray-300 text-sm flex flex-col gap-3 leading-relaxed'>

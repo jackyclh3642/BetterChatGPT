@@ -20,6 +20,8 @@ const useSubmit = () => {
   const generating = useStore((state) => state.generating);
   const currentChatIndex = useStore((state) => state.currentChatIndex);
   const setChats = useStore((state) => state.setChats);
+  const additionalBodyParameters = useStore((state) => state.additionalBodyParameters);
+  const systemJailbreak = useStore((state) => state.systemJailbreak);
 
   const generateTitle = async (
     message: MessageInterface[]
@@ -94,7 +96,7 @@ const useSubmit = () => {
 
       // Set the jailbreak role to system for chat completion
       messages.forEach((message) => {
-        if (message.role === 'jailbreak') message.role = 'system';
+        if (message.role === 'jailbreak') message.role = (systemJailbreak ? 'system' : 'user')
       });
       // console.log('messages', messages)
 
@@ -109,7 +111,9 @@ const useSubmit = () => {
         stream = await getChatCompletionStream(
           useStore.getState().apiEndpoint,
           messages,
-          dummyChats[currentChatIndex].config
+          dummyChats[currentChatIndex].config,
+          undefined,
+          additionalBodyParameters
         );
       } else if (apiKey) {
         // own apikey
@@ -117,7 +121,8 @@ const useSubmit = () => {
           useStore.getState().apiEndpoint,
           messages,
           dummyChats[currentChatIndex].config,
-          apiKey
+          apiKey,
+          additionalBodyParameters
         );
       }
 

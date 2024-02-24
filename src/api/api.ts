@@ -7,11 +7,12 @@ export const getChatCompletion = async (
   messages: MessageInterface[],
   config: ConfigInterface,
   apiKey?: string,
-  customHeaders?: Record<string, string>
+  // customHeaders?: Record<string, string>
+  additionalBodyParameters?: string
 ) => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...customHeaders,
+    // ...customHeaders,
   };
   if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
 
@@ -69,11 +70,12 @@ export const getChatCompletionStream = async (
   messages: MessageInterface[],
   config: ConfigInterface,
   apiKey?: string,
-  customHeaders?: Record<string, string>
+  // customHeaders?: Record<string, string>
+  additionalBodyParameters?: string
 ) => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...customHeaders,
+    // ...customHeaders,
   };
   if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
 
@@ -109,18 +111,31 @@ export const getChatCompletionStream = async (
   };
   const model = modelmapping[config.model] || config.model;
 
-  console.log(messages.map((message)=>({role: message.role, content: message.content})))
+  // Try to parse the additionalBodyParameters as JSON, throw an error if it fails
+  let additionalBodyParametersJSON = {}
+  if (additionalBodyParameters) {
+    try {
+      additionalBodyParametersJSON = JSON.parse(additionalBodyParameters)
+    } catch (e) {
+      throw new Error('Invalid additionalBodyParameters')
+    }
+  }
+
+  const body = {
+    messages: messages.map((message)=>({role: message.role, content: message.content})),
+    ...config,
+    max_tokens: undefined,
+    stream: true,
+    model,
+    ...additionalBodyParametersJSON
+  }
+  
+  console.log(body)
 
   const response = await fetch(endpoint, {
     method: 'POST',
     headers,
-    body: JSON.stringify({
-      messages: messages.map((message)=>({role: message.role, content: message.content})),
-      ...config,
-      max_tokens: undefined,
-      stream: true,
-      model
-    }),
+    body: JSON.stringify(body),
   });
   if (response.status === 404 || response.status === 405) {
     const text = await response.text();

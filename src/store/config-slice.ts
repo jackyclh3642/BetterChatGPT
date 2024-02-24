@@ -17,6 +17,8 @@ export interface ConfigSlice {
   markdownMode: boolean;
   countTotalTokens: boolean;
   totalTokenUsed: TotalTokenUsed;
+  additionalBodyParameters: string;
+  systemJailbreak: boolean;
   setOpenConfig: (openConfig: boolean) => void;
   setTheme: (theme: Theme) => void;
   setAutoTitle: (autoTitle: boolean) => void;
@@ -30,6 +32,8 @@ export interface ConfigSlice {
   setMarkdownMode: (markdownMode: boolean) => void;
   setCountTotalTokens: (countTotalTokens: boolean) => void;
   setTotalTokenUsed: (totalTokenUsed: TotalTokenUsed) => void;
+  setAdditionalBodyParameters: (additionalBodyParameters: string) => void;
+  setSystemJailbreak: (systemJailbreak: boolean) => void;
 }
 
 export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
@@ -46,6 +50,8 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
   markdownMode: true,
   countTotalTokens: false,
   totalTokenUsed: {},
+  additionalBodyParameters: "",
+  systemJailbreak: true,
   setOpenConfig: (openConfig: boolean) => {
     set((prev: ConfigSlice) => ({
       ...prev,
@@ -124,4 +130,16 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
       totalTokenUsed: totalTokenUsed,
     }));
   },
+  setAdditionalBodyParameters: (additionalBodyParameters: string) => {
+    set((prev: ConfigSlice) => ({
+      ...prev,
+      additionalBodyParameters: additionalBodyParameters,
+    }));
+  },
+  setSystemJailbreak: (systemJailbreak: boolean) => {
+    set((prev: ConfigSlice) => ({
+      ...prev,
+      systemJailbreak: systemJailbreak,
+    }));
+  }
 });
