@@ -132,7 +132,7 @@ export const getChatCompletionStream = async (
     ...additionalBodyParametersJSON
   }
   
-  console.log(body)
+  // console.log(body)
 
   const response = await fetch(endpoint, {
     method: 'POST',

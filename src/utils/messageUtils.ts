@@ -72,16 +72,21 @@ export const limitMessageTokens = (
     limitedMessages.unshift({ ...messages[i] });
   }
 
-  // Process first message
-  if (retainSystemMessage) {
-    // Insert the system message in the third position from the end
-    limitedMessages.splice(-3, 0, { ...messages[0] });
-  } else if (!isSystemFirstMessage) {
-    // Check if the first message (non-system) can fit within the limit
-    const firstMessageTokenCount = countTokens([messages[0]], model);
-    if (firstMessageTokenCount + tokenCount < limit) {
-      limitedMessages.unshift({ ...messages[0] });
-    }
+  // // Process first message
+  // if (retainSystemMessage) {
+  //   // Insert the system message in the third position from the end
+  //   limitedMessages.splice(-3, 0, { ...messages[0] });
+  // } else if (!isSystemFirstMessage) {
+  //   // Check if the first message (non-system) can fit within the limit
+  //   const firstMessageTokenCount = countTokens([messages[0]], model);
+  //   if (firstMessageTokenCount + tokenCount < limit) {
+  //     limitedMessages.unshift({ ...messages[0] });
+  //   }
+  // }
+
+  const firstMessageTokenCount = countTokens([messages[0]], model);
+  if (firstMessageTokenCount + tokenCount < limit) {
+    limitedMessages.unshift({ ...messages[0] });
   }
 
   return limitedMessages;
