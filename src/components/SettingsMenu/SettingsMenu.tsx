@@ -11,7 +11,6 @@ import AutoTitleToggle from './AutoTitleToggle';
 import AdvancedModeToggle from './AdvencedModeToggle';
 import InlineLatexToggle from './InlineLatexToggle';
 import SystemJailbreakToggle from './SystemJailbreakToggle';
-import SuffixJailbreakToggle from './SuffixJailbreakToggle';
 
 import PromptLibraryMenu from '@components/PromptLibraryMenu';
 import ChatConfigMenu from '@components/ChatConfigMenu';
@@ -21,8 +20,6 @@ import ClearConversation from '@components/Menu/MenuOptions/ClearConversation';
 
 const SettingsMenu = () => {
   const { t } = useTranslation();
-
-  const systemJailbreak = useStore((state) => state.systemJailbreak);
 
   const theme = useStore.getState().theme;
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -56,7 +53,6 @@ const SettingsMenu = () => {
               <AdvancedModeToggle />
               <TotalTokenCostToggle />
               <SystemJailbreakToggle />
-              {!systemJailbreak && <SuffixJailbreakToggle />}
             </div>
             <ClearConversation />
             <PromptLibraryMenu />

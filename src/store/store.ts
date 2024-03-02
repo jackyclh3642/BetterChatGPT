@@ -61,7 +61,6 @@ export const createPartializedState = (state: StoreState) => ({
   countTotalTokens: state.countTotalTokens,
   additionalBodyParameters: state.additionalBodyParameters,
   systemJailbreak: state.systemJailbreak,
-  suffixJailbreak: state.suffixJailbreak,
 });
 
 const useStore = create<StoreState>()(

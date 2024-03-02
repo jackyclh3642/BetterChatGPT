@@ -22,7 +22,6 @@ const useSubmit = () => {
   const setChats = useStore((state) => state.setChats);
   const additionalBodyParameters = useStore((state) => state.additionalBodyParameters);
   const systemJailbreak = useStore((state) => state.systemJailbreak);
-  const suffixJailbreak = useStore((state) => state.suffixJailbreak);
 
   const generateTitle = async (
     message: MessageInterface[]
@@ -87,7 +86,6 @@ const useSubmit = () => {
 
       // pop the last message if it's empty
       if (messages[messages.length - 1].content === '') messages.pop();
-      if (messages.length === 0) throw new Error('No messages submitted!');
 
       // sort the messages such that the jailbreak message is always last
       messages.sort((a, b) => {
@@ -95,14 +93,6 @@ const useSubmit = () => {
         if (b.role === 'jailbreak') return -1;
         return 0;
       });
-
-      if (suffixJailbreak) {
-        const lastMessage = messages[messages.length - 1];
-        if (lastMessage.role === 'jailbreak' && messages.length > 1 && messages[messages.length - 2].role === 'user') {
-          messages.pop()!; 
-          messages[messages.length - 1].content += lastMessage.content;
-        }
-      }
 
       // Set the jailbreak role to system for chat completion
       messages.forEach((message) => {
