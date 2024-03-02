@@ -86,6 +86,7 @@ const useSubmit = () => {
 
       // pop the last message if it's empty
       if (messages[messages.length - 1].content === '') messages.pop();
+      if (messages.length === 0) throw new Error('No messages submitted!');
 
       // sort the messages such that the jailbreak message is always last
       messages.sort((a, b) => {
@@ -94,9 +95,20 @@ const useSubmit = () => {
         return 0;
       });
 
+      if (!systemJailbreak) {
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage.role === 'jailbreak' && messages.length > 1 && messages[messages.length - 2].role === 'user') {
+          messages.pop()!;
+          // Join the jailbreak message with the last user message
+          // Format to ensure that there is only two newlines between the user message and the jailbreak message
+
+          messages[messages.length - 1].content = messages[messages.length - 1].content.trimEnd() + '\n\n' + lastMessage.content.trimStart();
+        }
+      }
+
       // Set the jailbreak role to system for chat completion
       messages.forEach((message) => {
-        if (message.role === 'jailbreak') message.role = (systemJailbreak ? 'system' : 'user')
+        if (message.role === 'jailbreak') message.role = 'system';
       });
       // console.log('messages', messages)
 
