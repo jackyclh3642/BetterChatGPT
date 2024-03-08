@@ -27,7 +27,8 @@ export const modelOptions: ModelOptions[] = [
   'mistral-medium',
   'lzlv-70b-fp16-hf',
   'mixtral-8x7b-instruct',
-  'mistral-large'
+  'mistral-large',
+  'claude-3-opus'
   // 'gpt-3.5-turbo-0301',
   // 'gpt-4-0314',
   // 'gpt-4-32k-0314',
@@ -53,6 +54,7 @@ export const modelMaxToken = {
   'mistral-large': 32000,
   'lzlv-70b-fp16-hf': 4096,
   'mixtral-8x7b-instruct': 32768,
+  'claude-3-opus': 4096,
 };
 
 export const modelCost = {
@@ -123,6 +125,10 @@ export const modelCost = {
   'mistral-large': {
     prompt: { price: 8.0, unit: 1000000 },
     completion: { price: 24.0, unit: 1000000 },
+  },
+  'claude-3-opus': {
+    prompt: { price: 15, unit: 1000000 },
+    completion: { price: 75, unit: 1000000 },
   },
 };
 

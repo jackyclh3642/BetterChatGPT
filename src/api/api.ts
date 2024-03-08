@@ -46,7 +46,8 @@ export const getChatCompletion = async (
     'mistral-medium': 'mistralai/mistral-medium',
     'lzlv-70b-fp16-hf': 'lizpreciatior/lzlv-70b-fp16-hf',
     'mixtral-8x7b-instruct': 'mistralai/mixtral-8x7b-instruct',
-    'mistral-large': 'mistralai/mistral-large'
+    'mistral-large': 'mistralai/mistral-large',
+    'claude-3-opus': 'anthropic/claude-3-opus:beta',
   };
   const model = modelmapping[config.model] || config.model;
 
@@ -109,7 +110,8 @@ export const getChatCompletionStream = async (
     'mistral-medium': 'mistralai/mistral-medium',
     'lzlv-70b-fp16-hf': 'lizpreciatior/lzlv-70b-fp16-hf',
     'mixtral-8x7b-instruct': 'mistralai/mixtral-8x7b-instruct',
-    'mistral-large': 'mistralai/mistral-large'
+    'mistral-large': 'mistralai/mistral-large',
+    'claude-3-opus': 'anthropic/claude-3-opus:beta',
   };
   const model = modelmapping[config.model] || config.model;
 
