@@ -10,6 +10,8 @@ import PopupModal from '@components/PopupModal';
 import TokenCount from '@components/TokenCount';
 import CommandPrompt from '../CommandPrompt';
 import { getMessages } from '@utils/chat';
+import { set } from 'lodash';
+import { use } from 'i18next';
 
 const EditView = ({
   content,
@@ -27,7 +29,7 @@ const EditView = ({
   const currentChatIndex = useStore((state) => state.currentChatIndex);
 
   const [_content, _setContent] = useState<string>(content);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  // const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const textareaRef = React.createRef<HTMLTextAreaElement>();
 
   const { t } = useTranslation();
@@ -64,6 +66,35 @@ const EditView = ({
     }
   };
 
+  // save new would only be called for non-sticky messages
+  const handleSaveNew = () => {
+    if (useStore.getState().generating) return;
+    const updatedChats: ChatInterface[] = JSON.parse(
+      JSON.stringify(useStore.getState().chats)
+    );
+    const updatedMessages = getMessages(updatedChats[currentChatIndex]);
+    const parentMessage = updatedMessages[messageIndex-1];
+    // check if the same message is already saved in parent
+    // for (let i = 0; i < parentMessage.children.length; i++) {
+    //   if (parentMessage.children[i].content === _content) {
+    //     setIsEdit(false);
+    //     parentMessage.childId = i;
+    //     setChats(updatedChats);
+    //     return;
+    //   }
+    // }
+    parentMessage.children.push({
+      role: updatedMessages[messageIndex].role,
+      content: _content,
+      childId: -1,
+      children: [],
+      favorite: false,
+    })
+    parentMessage.childId = parentMessage.children.length - 1;
+    setIsEdit(false);
+    setChats(updatedChats);
+  }
+
   const handleSave = () => {
     if (sticky && (_content === '' || useStore.getState().generating)) return;
     const updatedChats: ChatInterface[] = JSON.parse(
@@ -85,20 +116,20 @@ const EditView = ({
       _setContent('');
       resetTextAreaHeight();
     } else {
-      const editedMessage = updatedMessages[messageIndex];
-      if (messageIndex === 0 || editedMessage.role === 'assistant' || editedMessage.children.length === 0) {
+      // const editedMessage = updatedMessages[messageIndex];
+      // if (messageIndex === 0 || editedMessage.role === 'assistant' || editedMessage.children.length === 0) {
       updatedMessages[messageIndex].content = _content;
-      } else {
-        const parentMessage = updatedMessages[messageIndex-1];
-        parentMessage.children.push({
-          role: editedMessage.role,
-          content: _content,
-          childId: -1,
-          children: [],
-          favorite: false,
-        })
-        parentMessage.childId = parentMessage.children.length - 1;
-      }
+      // } else {
+      //   const parentMessage = updatedMessages[messageIndex-1];
+      //   parentMessage.children.push({
+      //     role: editedMessage.role,
+      //     content: _content,
+      //     childId: -1,
+      //     children: [],
+      //     favorite: false,
+      //   })
+      //   parentMessage.childId = parentMessage.children.length - 1;
+      // }
       setIsEdit(false);
     }
     setChats(updatedChats);
@@ -200,20 +231,21 @@ const EditView = ({
       </div>
       <EditViewButtons
         sticky={sticky}
+        handleSaveNew={handleSaveNew}
         handleGenerate={handleGenerate}
         handleSave={handleSave}
-        setIsModalOpen={setIsModalOpen}
+        // setIsModalOpen={setIsModalOpen}
         setIsEdit={setIsEdit}
         _setContent={_setContent}
       />
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <PopupModal
           setIsModalOpen={setIsModalOpen}
           title={t('warning') as string}
           message={t('clearMessageWarning') as string}
           handleConfirm={handleGenerate}
         />
-      )}
+      )} */}
     </>
   );
 };
@@ -222,15 +254,17 @@ const EditViewButtons = memo(
   ({
     sticky = false,
     handleGenerate,
+    handleSaveNew,
     handleSave,
-    setIsModalOpen,
+    // setIsModalOpen,
     setIsEdit,
     _setContent,
   }: {
     sticky?: boolean;
     handleGenerate: () => void;
+    handleSaveNew: () => void;
     handleSave: () => void;
-    setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    // setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
     _setContent: React.Dispatch<React.SetStateAction<string>>;
   }) => {
@@ -258,12 +292,10 @@ const EditViewButtons = memo(
           {sticky || (
             <button
               className='btn relative mr-2 btn-primary'
-              onClick={() => {
-                !generating && setIsModalOpen(true);
-              }}
+              onClick={handleSaveNew}
             >
               <div className='flex items-center justify-center gap-2'>
-                {t('generate')}
+                {"Save As"}
               </div>
             </button>
           )}
