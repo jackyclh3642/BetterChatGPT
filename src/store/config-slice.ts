@@ -44,16 +44,16 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
   hideMenuOptions: false,
   hideSideMenu: false,
   autoTitle: false,
-  enterToSubmit: true,
+  enterToSubmit: false, // BetterGPT default, true
   advancedMode: true,
   defaultChatConfig: _defaultChatConfig,
   defaultSystemMessage: _defaultSystemMessage,
-  inlineLatex: false,
+  inlineLatex: true, // BetterGPT default, false
   markdownMode: true,
-  countTotalTokens: false,
+  countTotalTokens: true, // BetterGPT default, false
   totalTokenUsed: {},
   additionalBodyParameters: "",
-  systemJailbreak: true,
+  systemJailbreak: false,
   squashSystemMessages: true,
   setOpenConfig: (openConfig: boolean) => {
     set((prev: ConfigSlice) => ({
