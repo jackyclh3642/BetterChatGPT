@@ -17,6 +17,7 @@ import ChatConfigMenu from '@components/ChatConfigMenu';
 import EnterToSubmitToggle from './EnterToSubmitToggle';
 import TotalTokenCost, { TotalTokenCostToggle } from './TotalTokenCost';
 import ClearConversation from '@components/Menu/MenuOptions/ClearConversation';
+import SquashSystemMessagesToggle from './SquashSystemMessagesToggle';
 
 const SettingsMenu = () => {
   const { t } = useTranslation();
@@ -53,6 +54,7 @@ const SettingsMenu = () => {
               <AdvancedModeToggle />
               <TotalTokenCostToggle />
               <SystemJailbreakToggle />
+              <SquashSystemMessagesToggle />
             </div>
             <ClearConversation />
             <PromptLibraryMenu />

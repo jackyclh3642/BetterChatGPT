@@ -22,6 +22,7 @@ const useSubmit = () => {
   const setChats = useStore((state) => state.setChats);
   const additionalBodyParameters = useStore((state) => state.additionalBodyParameters);
   const systemJailbreak = useStore((state) => state.systemJailbreak);
+  const squashSystemMessages = useStore((state) => state.squashSystemMessages);
 
   const generateTitle = async (
     message: MessageInterface[]
@@ -123,6 +124,19 @@ const useSubmit = () => {
           // Format to ensure that there is only two newlines between the user message and the jailbreak message
 
           messages[messages.length - 1].content = messages[messages.length - 1].content.trimEnd() + '\n\n' + lastMessage.content.trimStart();
+        }
+      }
+
+      // loop through the messages and combine the consecutive system messages if squashSystemMessages is true
+      if (squashSystemMessages) {
+        let i = 0;
+        while (i < messages.length - 1) {
+          if (messages[i].role === 'system' && messages[i + 1].role === 'system') {
+            messages[i].content += '\n\n' + messages[i + 1].content;
+            messages.splice(i + 1, 1);
+          } else {
+            i++;
+          }
         }
       }
 
