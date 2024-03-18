@@ -84,6 +84,26 @@ const useSubmit = () => {
       );
       if (messages.length === 0) throw new Error('Message exceed max token!');
 
+      // search and pop the message if it's prefill, assume there is only one prefill message
+      let prefillMessageIndex = -1;
+      messages.forEach((message, index) => {
+        if (message.role === 'prefill') prefillMessageIndex = index;
+      });
+      // save the prefill message
+      let prefillMessage;
+      if (prefillMessageIndex !== -1) {
+        prefillMessage = messages[prefillMessageIndex];
+        messages.splice(prefillMessageIndex, 1);
+      }
+
+      // add the prefill message to the last message (if it's assistant message)
+      if (prefillMessage) {
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage.role === 'assistant') {
+          lastMessage.content = prefillMessage.content + '\n\n';
+        }
+      }
+
       // pop the last message if it's empty
       if (messages[messages.length - 1].content === '') messages.pop();
       if (messages.length === 0) throw new Error('No messages submitted!');
@@ -174,6 +194,10 @@ const useSubmit = () => {
               updatedChats[currentChatIndex]
             );
             updatedMessages[updatedMessages.length - 1].content += resultString;
+            // strip left white space for good measure
+            updatedMessages[updatedMessages.length - 1].content = updatedMessages[
+              updatedMessages.length - 1
+            ].content.trimStart();
             setChats(updatedChats);
           }
         }

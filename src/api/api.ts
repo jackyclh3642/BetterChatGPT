@@ -48,6 +48,7 @@ export const getChatCompletion = async (
     'mixtral-8x7b-instruct': 'mistralai/mixtral-8x7b-instruct',
     'mistral-large': 'mistralai/mistral-large',
     'claude-3-opus': 'anthropic/claude-3-opus:beta',
+    'claude-3-haiku': 'anthropic/claude-3-haiku:beta',
   };
   const model = modelmapping[config.model] || config.model;
 
@@ -112,6 +113,7 @@ export const getChatCompletionStream = async (
     'mixtral-8x7b-instruct': 'mistralai/mixtral-8x7b-instruct',
     'mistral-large': 'mistralai/mistral-large',
     'claude-3-opus': 'anthropic/claude-3-opus:beta',
+    'claude-3-haiku': 'anthropic/claude-3-haiku:beta',
   };
   const model = modelmapping[config.model] || config.model;
 

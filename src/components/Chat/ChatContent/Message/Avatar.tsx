@@ -9,7 +9,8 @@ const Avatar = React.memo(({ role }: { role: Role }) => {
       {role === 'user' && <UserAvatar />}
       {role === 'assistant' && <AssistantAvatar />}
       {role === 'system' && <SystemAvatar />}
-      {role === 'jailbreak' && <SystemAvatar />}
+      {role === 'jailbreak' && <JailbreakAvator />}
+      {role === 'prefill' && <PrefillAvator />}
     </div>
   );
 });
@@ -24,6 +25,49 @@ const UserAvatar = () => {
     </div>
   );
 };
+
+const JailbreakAvator = () => {
+  return (
+    <div
+      className='relative h-[30px] w-[30px] p-1 rounded-sm text-white flex items-center justify-center'
+      style={{ backgroundColor: 'rgb(126, 163, 227)' }}
+    >
+      <svg
+        width='24'
+        height='24'
+        viewBox='0 0 24 24'
+        fill = "currentColor"
+        xmlns='http://www.w3.org/2000/svg'
+        strokeWidth='1.5'
+        className='h-6 w-6'
+      >
+        <path d="M18 1.5c2.9 0 5.25 2.35 5.25 5.25v3.75a.75.75 0 0 1-1.5 0V6.75a3.75 3.75 0 1 0-7.5 0v3a3 3 0 0 1 3 3v6.75a3 3 0 0 1-3 3H3.75a3 3 0 0 1-3-3v-6.75a3 3 0 0 1 3-3h9v-3c0-2.9 2.35-5.25 5.25-5.25Z" />
+      </svg>
+    </div>
+  );
+};
+
+const PrefillAvator = () => {
+  return (
+    <div
+      className='relative h-[30px] w-[30px] p-1 rounded-sm text-white flex items-center justify-center'
+      style={{ backgroundColor: 'rgb(126, 163, 227)' }}
+    >
+      <svg
+        width='24'
+        height='24'
+        viewBox='0 0 24 24'
+        fill = "currentColor"
+        xmlns='http://www.w3.org/2000/svg'
+        strokeWidth='1.5'
+        className='h-6 w-6'
+      >
+          <path fillRule="evenodd" d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97a48.901 48.901 0 0 1-3.476.383.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.68 3.348-3.97ZM6.75 8.25a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5h-9a.75.75 0 0 1-.75-.75Zm.75 2.25a.75.75 0 0 0 0 1.5H12a.75.75 0 0 0 0-1.5H7.5Z" clipRule="evenodd" />
+      </svg>
+    </div>
+  );
+};
+
 
 const AssistantAvatar = () => {
   return (

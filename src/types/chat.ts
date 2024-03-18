@@ -1,8 +1,8 @@
 import { Prompt } from './prompt';
 import { Theme } from './theme';
 
-export type Role = 'user' | 'assistant' | 'system' | 'jailbreak';
-export const roles: Role[] = ['user', 'assistant', 'system', 'jailbreak'];
+export type Role = 'user' | 'assistant' | 'system' | 'jailbreak' | 'prefill';
+export const roles: Role[] = ['user', 'assistant', 'system', 'jailbreak', 'prefill'];
 
 export interface MessageInterface {
   childId: number;
@@ -53,7 +53,7 @@ export interface Folder {
 }
 
 export type ModelOptions = 'gpt-4' | 'gpt-4-32k' | 'gpt-4-1106-preview' | 'gpt-3.5-turbo' | 'gpt-3.5-turbo-16k' | 'gpt-3.5-turbo-1106'
-  | 'mistral-medium' | 'lzlv-70b-fp16-hf' | 'mixtral-8x7b-instruct' | 'mistral-large' | 'claude-3-opus';
+  | 'mistral-medium' | 'lzlv-70b-fp16-hf' | 'mixtral-8x7b-instruct' | 'mistral-large' | 'claude-3-opus' | 'claude-3-haiku';
 // | 'gpt-3.5-turbo-0301';
 // | 'gpt-4-0314'
 // | 'gpt-4-32k-0314'
