@@ -116,15 +116,31 @@ const useSubmit = () => {
         return 0;
       });
 
-      if (!systemJailbreak) {
-        const lastMessage = messages[messages.length - 1];
-        if (lastMessage.role === 'jailbreak' && messages.length > 1 && messages[messages.length - 2].role === 'user') {
-          messages.pop()!;
-          // Join the jailbreak message with the last user message
-          // Format to ensure that there is only two newlines between the user message and the jailbreak message
+      // // if the second last message is an assistant message and the last message is a jailbreak message, reverse the messages
+      // if (messages.length > 1 && messages[messages.length - 1].role === 'jailbreak' && messages[messages.length - 2].role === 'assistant') {
+      //   let lastMessage = messages.pop()!;
+      //   let secondLastMessage = messages.pop()!;
+      //   messages.push(lastMessage);
+      //   messages.push(secondLastMessage);
+      // }
 
-          messages[messages.length - 1].content = messages[messages.length - 1].content.trimEnd() + '\n\n' + lastMessage.content.trimStart();
+      if (!systemJailbreak) {
+        const lastMessage = messages.pop()!;
+        // add the content of the jailbreak message to the last user message
+        for (let i = messages.length - 1; i >= 0; i--) {
+          if (messages[i].role === 'user') {
+            messages[i].content = messages[i].content.trimEnd() + '\n\n' + lastMessage.content.trimStart();
+            break;
+          }
         }
+
+        // if (lastMessage.role === 'jailbreak' && messages.length > 1 && messages[messages.length - 2].role === 'user') {
+        //   messages.pop()!;
+        //   // Join the jailbreak message with the last user message
+        //   // Format to ensure that there is only two newlines between the user message and the jailbreak message
+
+        //   messages[messages.length - 1].content = messages[messages.length - 1].content.trimEnd() + '\n\n' + lastMessage.content.trimStart();
+        // }
       }
 
       // loop through the messages and combine the consecutive system messages if squashSystemMessages is true
