@@ -125,12 +125,15 @@ const useSubmit = () => {
       // }
 
       if (!systemJailbreak) {
-        const lastMessage = messages.pop()!;
-        // add the content of the jailbreak message to the last user message
-        for (let i = messages.length - 1; i >= 0; i--) {
-          if (messages[i].role === 'user') {
-            messages[i].content = messages[i].content.trimEnd() + '\n\n' + lastMessage.content.trimStart();
-            break;
+        const lastMessage = messages[messages.length - 1];
+        if(lastMessage.role === 'jailbreak' && messages.length > 1){
+          // add the content of the jailbreak message to the last user message
+          for (let i = messages.length - 2; i >= 0; i--) {
+            if (messages[i].role === 'user') {
+              messages[i].content = messages[i].content.trimEnd() + '\n\n' + lastMessage.content.trimStart();
+              messages.pop()!;
+              break;
+            }
           }
         }
 
