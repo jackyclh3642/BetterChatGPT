@@ -105,46 +105,28 @@ const useSubmit = () => {
         }
       }
 
+      // save the jailbreak message if present, warn if there are multiple jailbreak messages
+      let jailbreakMessageIndex = -1;
+      let jailbreakMessageCount = 0;
+      messages.forEach((message, index) => {
+        if (message.role === 'jailbreak') {
+          jailbreakMessageIndex = index;
+          jailbreakMessageCount++;
+        }
+      });
+      if (jailbreakMessageCount > 1)
+        throw new Error('Multiple jailbreak messages detected!');
+
+      // pop the jailbreak message if it's present
+      let jailbreakMessage;
+      if (jailbreakMessageIndex !== -1) {
+        jailbreakMessage = messages[jailbreakMessageIndex];
+        messages.splice(jailbreakMessageIndex, 1);
+      }
+
       // pop the last message if it's empty
       if (messages[messages.length - 1].content === '') messages.pop();
       if (messages.length === 0) throw new Error('No messages submitted!');
-
-      // sort the messages such that the jailbreak message is always last
-      messages.sort((a, b) => {
-        if (a.role === 'jailbreak') return 1;
-        if (b.role === 'jailbreak') return -1;
-        return 0;
-      });
-
-      // // if the second last message is an assistant message and the last message is a jailbreak message, reverse the messages
-      // if (messages.length > 1 && messages[messages.length - 1].role === 'jailbreak' && messages[messages.length - 2].role === 'assistant') {
-      //   let lastMessage = messages.pop()!;
-      //   let secondLastMessage = messages.pop()!;
-      //   messages.push(lastMessage);
-      //   messages.push(secondLastMessage);
-      // }
-
-      if (!systemJailbreak) {
-        const lastMessage = messages[messages.length - 1];
-        if(lastMessage.role === 'jailbreak' && messages.length > 1){
-          // add the content of the jailbreak message to the last user message
-          for (let i = messages.length - 2; i >= 0; i--) {
-            if (messages[i].role === 'user') {
-              messages[i].content = messages[i].content.trimEnd() + '\n\n' + lastMessage.content.trimStart();
-              messages.pop()!;
-              break;
-            }
-          }
-        }
-
-        // if (lastMessage.role === 'jailbreak' && messages.length > 1 && messages[messages.length - 2].role === 'user') {
-        //   messages.pop()!;
-        //   // Join the jailbreak message with the last user message
-        //   // Format to ensure that there is only two newlines between the user message and the jailbreak message
-
-        //   messages[messages.length - 1].content = messages[messages.length - 1].content.trimEnd() + '\n\n' + lastMessage.content.trimStart();
-        // }
-      }
 
       // loop through the messages and combine the consecutive system messages if squashSystemMessages is true
       if (squashSystemMessages) {
@@ -159,11 +141,36 @@ const useSubmit = () => {
         }
       }
 
-      // Set the jailbreak role to system for chat completion
-      messages.forEach((message) => {
-        if (message.role === 'jailbreak') message.role = 'system';
-      });
-      // console.log('messages', messages)
+      if (jailbreakMessage) {
+        if (systemJailbreak) {
+          jailbreakMessage.role = 'system';
+          if (messages[messages.length - 1].role === 'assistant') {
+            // insert it before the prefilled assistant message
+            messages.splice(messages.length - 1, 0, jailbreakMessage);
+          } else {
+            messages.push(jailbreakMessage);
+          }
+        } else {
+          // add the jailbreak message to the last user message
+          let added = false;
+          for (let i = messages.length - 1; i >= 0; i--) {
+            if (messages[i].role === 'user') {
+              messages[i].content = messages[i].content.trimEnd() + '\n\n' + jailbreakMessage.content.trimStart();
+              added = true;
+              break;
+            }
+          }
+          if (!added) {
+            throw new Error('Non-system Jailbreak message must be preceded by a user message!');
+          }
+        }
+      }
+
+      // // Set the jailbreak role to system for chat completion
+      // messages.forEach((message) => {
+      //   if (message.role === 'jailbreak') message.role = 'system';
+      // });
+      // // console.log('messages', messages)
 
       // no api key (free)
       if (!apiKey || apiKey.length === 0) {
