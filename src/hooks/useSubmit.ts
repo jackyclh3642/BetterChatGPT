@@ -101,7 +101,8 @@ const useSubmit = () => {
       if (prefillMessage) {
         const lastMessage = messages[messages.length - 1];
         if (lastMessage.role === 'assistant') {
-          lastMessage.content = prefillMessage.content + '\n\n';
+          // lastMessage.content = prefillMessage.content + '\n\n';
+          lastMessage.content = prefillMessage.content;
         }
       }
 
