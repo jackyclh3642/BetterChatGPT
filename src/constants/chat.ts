@@ -30,6 +30,9 @@ export const modelOptions: ModelOptions[] = [
   'mistral-large',
   'claude-3-opus',
   'claude-3-haiku',
+  'command-r-plus',
+  'llama-3-70b-instruct',
+  'custom'
   // 'gpt-3.5-turbo-0301',
   // 'gpt-4-0314',
   // 'gpt-4-32k-0314',
@@ -57,6 +60,9 @@ export const modelMaxToken = {
   'mixtral-8x7b-instruct': 32768,
   'claude-3-opus': 4096,
   'claude-3-haiku': 4096,
+  'command-r-plus': 4000,
+  'llama-3-70b-instruct': 8192,
+  'custom': 128000,
 };
 
 export const modelCost = {
@@ -135,6 +141,18 @@ export const modelCost = {
   'claude-3-haiku': {
     prompt: { price: 0.25, unit: 1000000 },
     completion: { price: 1.25, unit: 1000000 },
+  },
+  'command-r-plus': {
+    prompt: { price: 3, unit: 1000000 },
+    completion: { price: 15, unit: 1000000 },
+  },
+  'llama-3-70b-instruct': {
+    prompt: { price: 0.75, unit: 1000000 },
+    completion: { price: 0.75, unit: 1000000 },
+  },
+  'custom': {
+    prompt: { price: 1, unit: 1000000 },
+    completion: { price: 1, unit: 1000000 },
   },
 };
 

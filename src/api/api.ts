@@ -49,6 +49,8 @@ export const getChatCompletion = async (
     'mistral-large': 'mistralai/mistral-large',
     'claude-3-opus': 'anthropic/claude-3-opus:beta',
     'claude-3-haiku': 'anthropic/claude-3-haiku:beta',
+    "command-r-plus": 'cohere/command-r-plus',
+    'llama-3-70b-instruct': 'meta-llama/llama-3-70b-instruct'
   };
   const model = modelmapping[config.model] || config.model;
 
@@ -114,6 +116,8 @@ export const getChatCompletionStream = async (
     'mistral-large': 'mistralai/mistral-large',
     'claude-3-opus': 'anthropic/claude-3-opus:beta',
     'claude-3-haiku': 'anthropic/claude-3-haiku:beta',
+    "command-r-plus": 'cohere/command-r-plus',
+    'llama-3-70b-instruct': 'meta-llama/llama-3-70b-instruct'
   };
   const model = modelmapping[config.model] || config.model;
 
@@ -125,6 +129,17 @@ export const getChatCompletionStream = async (
     } catch (e) {
       throw new Error('Invalid additionalBodyParameters')
     }
+  }
+
+  if (config.model === 'custom') {
+    //raise error if the model is not specified in additionalBodyParameters
+    if (!additionalBodyParametersJSON.hasOwnProperty('model')) {
+      throw new Error('Model is required in additionalBodyParameters for custom model')
+    }
+  } else {
+    //remove model from additionalBodyParameters if it is not custom, suppress typescript error
+    // @ts-ignore
+    delete additionalBodyParametersJSON.model
   }
 
   const body = {
