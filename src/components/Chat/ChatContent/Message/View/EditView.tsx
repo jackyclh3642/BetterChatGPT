@@ -95,18 +95,110 @@ const EditView = ({
     setChats(updatedChats);
   }
 
-  const handleSave = () => {
+  const handleSave = (format: boolean = false) => {
     if (sticky && (_content === '' || useStore.getState().generating)) return;
     const updatedChats: ChatInterface[] = JSON.parse(
       JSON.stringify(useStore.getState().chats)
     );
+
+    let formatted = _content;
+    if (format) {
+      let input = _content.trim()
+
+      let output = '';
+      let pointer = 0;
+      let insideQuotes = false;
+
+      while (true) {
+        if (insideQuotes) {
+          const nextQuote = input.indexOf('"', pointer);
+          if (nextQuote === -1) {
+            // This one should not happen, but just in case
+            output += input.slice(pointer).trim();
+            break;
+          } else {
+            // The pointer must point behind the starting quote, otherwise it will match the same quote again
+            output += input.slice(pointer, nextQuote).trim() + '"';
+            pointer = nextQuote+1;
+            insideQuotes = false;
+          }
+
+        } else {
+          const nextQuote = input.indexOf('"', pointer);
+          const nextNewline = input.indexOf('\n', pointer);
+
+          let message: string;
+          let prefix: string;
+          let completed = false;
+
+          if (nextQuote === -1 && nextNewline === -1) {
+            message = input.slice(pointer).trim();
+            prefix = '';
+            completed = true;
+          } else if (nextQuote === -1 || (nextNewline !== -1 && nextNewline < nextQuote)) {
+            message = input.slice(pointer, nextNewline).trim();
+            prefix = '\n';
+            pointer = nextNewline+1;
+          } else {
+            message = input.slice(pointer, nextQuote).trim();
+            prefix = ' "';
+            pointer = nextQuote+1;
+            insideQuotes = true;
+          }
+
+          if (message !== '') {
+            if (!(output.endsWith('\n'))) output += ' ';
+            if (!message.startsWith('*')) output += '*';
+            output += message;
+            if (!message.endsWith('*')) output += '*';
+          }
+          output += prefix;
+          if (completed) break;
+
+          // if (nextQuote === -1 && nextNewline === -1) {
+          //   let message_end = input.slice(pointer).trim();
+          //   // console.log('message_end:', message_end)
+          //   if (message_end !== ''){
+          //     if (!(output.endsWith('\n'))) output += ' ';
+          //     output += '*' + message_end + '*';
+          //   }
+          //   break;
+          // } else if (nextQuote === -1 || (nextNewline !== -1 && nextNewline < nextQuote)) {
+          //   let paragraph_end = input.slice(pointer, nextNewline).trim();
+          //   // console.log('paragraph_end:', paragraph_end)
+          //   if (paragraph_end !== ''){
+          //     if (!(output.endsWith('\n'))) output += ' ';
+          //     output += '*' + paragraph_end + '*';
+          //   }
+          //   output += '\n';
+          //   pointer = nextNewline+1;
+          // } else {
+          //   let intermediate = input.slice(pointer, nextQuote).trim();
+          //   // console.log('intermediate:', intermediate)
+          //   if (intermediate !== ''){
+          //     if (!(output.endsWith('\n'))) output += ' ';
+          //     if (!intermediate.startsWith('*')) output += '*';
+          //     output += intermediate
+          //     if (!intermediate.endsWith('*')) output += '*';
+          //   }
+          //   if (!(output.endsWith('\n'))) output += ' ';
+          //   output += '"';
+          //   pointer = nextQuote+1;
+          //   insideQuotes = true
+          // }
+        }
+      }
+      // also standardize the newlines
+      formatted = output.replace(/\n{1,}/g, '\n\n').trim();
+    }
+
     // const updatedMessages = updatedChats[currentChatIndex].messages;
     const updatedMessages = getMessages(updatedChats[currentChatIndex]);
     if (sticky) {
       const parentMessage = updatedMessages[updatedMessages.length - 1];
       parentMessage.children.push({
         role: inputRole,
-        content: _content,
+        content: formatted,
         childId: -1,
         children: [],
         favorite: false,
@@ -118,7 +210,7 @@ const EditView = ({
     } else {
       // const editedMessage = updatedMessages[messageIndex];
       // if (messageIndex === 0 || editedMessage.role === 'assistant' || editedMessage.children.length === 0) {
-      updatedMessages[messageIndex].content = _content;
+      updatedMessages[messageIndex].content = formatted;
       // } else {
       //   const parentMessage = updatedMessages[messageIndex-1];
       //   parentMessage.children.push({
@@ -263,7 +355,7 @@ const EditViewButtons = memo(
     sticky?: boolean;
     handleGenerate: () => void;
     handleSaveNew: () => void;
-    handleSave: () => void;
+    handleSave: (format: boolean) => void;
     // setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
     _setContent: React.Dispatch<React.SetStateAction<string>>;
@@ -308,11 +400,26 @@ const EditViewButtons = memo(
                   }`
                 : 'btn-neutral'
             }`}
-            onClick={handleSave}
-            aria-label={t('save') as string}
+            onClick={()=>{handleSave(false)}}
           >
             <div className='flex items-center justify-center gap-2'>
               {t('save')}
+            </div>
+          </button>
+
+          
+          <button
+            className={`btn relative mr-2 ${
+              sticky
+                ? `btn-neutral ${
+                    generating ? 'cursor-not-allowed opacity-40' : ''
+                  }`
+                : 'btn-neutral'
+            }`}
+            onClick={()=>{handleSave(true)}}
+          >
+            <div className='flex items-center justify-center gap-2'>
+              {"Format & Save"}
             </div>
           </button>
 
