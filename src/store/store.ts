@@ -1,11 +1,13 @@
 import { StoreApi, create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { ChatSlice, createChatSlice } from './chat-slice';
 import { InputSlice, createInputSlice } from './input-slice';
 import { AuthSlice, createAuthSlice } from './auth-slice';
 import { ConfigSlice, createConfigSlice } from './config-slice';
 import { PromptSlice, createPromptSlice } from './prompt-slice';
 import { ToastSlice, createToastSlice } from './toast-slice';
+import localforage from 'localforage';
+
 import {
   LocalStorageInterfaceV0ToV1,
   LocalStorageInterfaceV1ToV2,
@@ -76,30 +78,34 @@ const useStore = create<StoreState>()(
     }),
     {
       name: 'free-chat-gpt',
+      // @ts-ignore
+      storage: createJSONStorage(() => localforage),
+      // the setItem and removeItem which returns string causing mismatch is neglected
       partialize: (state) => createPartializedState(state),
       version: 8,
-      migrate: (persistedState, version) => {
-        switch (version) {
-          case 0:
-            migrateV0(persistedState as LocalStorageInterfaceV0ToV1);
-          case 1:
-            migrateV1(persistedState as LocalStorageInterfaceV1ToV2);
-          case 2:
-            migrateV2(persistedState as LocalStorageInterfaceV2ToV3);
-          case 3:
-            migrateV3(persistedState as LocalStorageInterfaceV3ToV4);
-          case 4:
-            migrateV4(persistedState as LocalStorageInterfaceV4ToV5);
-          case 5:
-            migrateV5(persistedState as LocalStorageInterfaceV5ToV6);
-          case 6:
-            migrateV6(persistedState as LocalStorageInterfaceV6ToV7);
-          case 7:
-            migrateV7(persistedState as LocalStorageInterfaceV7oV8);
-            break;
-        }
-        return persistedState as StoreState;
-      },
+      // migrate: (persistedState, version) => {
+      //   // switch (version) {
+      //   //   case 0:
+      //   //     migrateV0(persistedState as LocalStorageInterfaceV0ToV1);
+      //   //   case 1:
+      //   //     migrateV1(persistedState as LocalStorageInterfaceV1ToV2);
+      //   //   case 2:
+      //   //     migrateV2(persistedState as LocalStorageInterfaceV2ToV3);
+      //   //   case 3:
+      //   //     migrateV3(persistedState as LocalStorageInterfaceV3ToV4);
+      //   //   case 4:
+      //   //     migrateV4(persistedState as LocalStorageInterfaceV4ToV5);
+      //   //   case 5:
+      //   //     migrateV5(persistedState as LocalStorageInterfaceV5ToV6);
+      //   //   case 6:
+      //   //     migrateV6(persistedState as LocalStorageInterfaceV6ToV7);
+      //   //   case 7:
+      //   //     migrateV7(persistedState as LocalStorageInterfaceV7oV8);
+      //   //     break;
+      //   // }
+      //   return persistedState as StoreState;
+      // },
+      // getStorage: () => localForage;
     }
   )
 );
