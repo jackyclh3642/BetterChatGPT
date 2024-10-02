@@ -32,6 +32,8 @@ export const modelOptions: ModelOptions[] = [
   'claude-3-haiku',
   'command-r-plus',
   'llama-3-70b-instruct',
+  'claude-3.5-sonnet',
+  'llama-3.1-405b-instruct',
   'custom'
   // 'gpt-3.5-turbo-0301',
   // 'gpt-4-0314',
@@ -62,6 +64,8 @@ export const modelMaxToken = {
   'claude-3-haiku': 4096,
   'command-r-plus': 4000,
   'llama-3-70b-instruct': 8192,
+  'claude-3.5-sonnet': 8192,
+  'llama-3.1-405b-instruct': 32000,
   'custom': 128000,
 };
 
@@ -149,6 +153,14 @@ export const modelCost = {
   'llama-3-70b-instruct': {
     prompt: { price: 0.75, unit: 1000000 },
     completion: { price: 0.75, unit: 1000000 },
+  },
+  'claude-3.5-sonnet': {
+    prompt: { price: 3, unit: 1000000 },
+    completion: { price: 15, unit: 1000000 },
+  },
+  'llama-3.1-405b-instruct': {
+    prompt: { price: 2.5, unit: 1000000 },
+    completion: { price: 2.5, unit: 1000000 },
   },
   'custom': {
     prompt: { price: 1, unit: 1000000 },

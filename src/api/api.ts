@@ -50,7 +50,10 @@ export const getChatCompletion = async (
     'claude-3-opus': 'anthropic/claude-3-opus:beta',
     'claude-3-haiku': 'anthropic/claude-3-haiku:beta',
     "command-r-plus": 'cohere/command-r-plus',
-    'llama-3-70b-instruct': 'meta-llama/llama-3-70b-instruct'
+    'llama-3-70b-instruct': 'meta-llama/llama-3-70b-instruct',
+    'claude-3.5-sonnet': 'anthropic/claude-3.5-sonnet:beta',
+    'llama-3.1-405b-instruct': 'meta-llama/llama-3.1-405b-instruct',
+
   };
   const model = modelmapping[config.model] || config.model;
 
@@ -117,7 +120,9 @@ export const getChatCompletionStream = async (
     'claude-3-opus': 'anthropic/claude-3-opus:beta',
     'claude-3-haiku': 'anthropic/claude-3-haiku:beta',
     "command-r-plus": 'cohere/command-r-plus',
-    'llama-3-70b-instruct': 'meta-llama/llama-3-70b-instruct'
+    'llama-3-70b-instruct': 'meta-llama/llama-3-70b-instruct',
+    'claude-3.5-sonnet': 'anthropic/claude-3.5-sonnet:beta',
+    'llama-3.1-405b-instruct': 'meta-llama/llama-3.1-405b-instruct',
   };
   const model = modelmapping[config.model] || config.model;
 
