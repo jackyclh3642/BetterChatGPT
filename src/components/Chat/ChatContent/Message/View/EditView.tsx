@@ -103,7 +103,8 @@ const EditView = ({
 
     let formatted = _content;
     if (format) {
-      let input = _content.trim()
+      let input = _content.replace(/\*/g, '').trim()
+      // also remove all "*" from the input
 
       let output = '';
       let pointer = 0;
