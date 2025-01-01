@@ -112,8 +112,21 @@ const ImportChat = () => {
                   setFolders({ ...parsedData.folders, ...updatedFolders });
 
                   // import chats
+
+                  // keep a record of the imported chat ids
+                  const ids: string[] = [];
+
                   const prevChats = useStore.getState().chats;
                   if (parsedData.chats) {
+                    // loop through the chats and randomize the id if it already exists
+                    parsedData.chats.forEach((chat) => {
+                      let id = chat.id;
+                      if (ids.includes(id)) {
+                        id = uuidv4();
+                      }
+                      ids.push(id);
+                      chat.id = id;
+                    });
                     if (prevChats) {
                       const updatedChats: ChatInterface[] = JSON.parse(
                         JSON.stringify(prevChats)

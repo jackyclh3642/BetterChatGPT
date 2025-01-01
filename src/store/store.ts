@@ -1,5 +1,5 @@
 import { StoreApi, create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist, createJSONStorage, StateStorage, PersistStorage, StorageValue } from 'zustand/middleware';
 import { ChatSlice, createChatSlice } from './chat-slice';
 import { InputSlice, createInputSlice } from './input-slice';
 import { AuthSlice, createAuthSlice } from './auth-slice';
@@ -7,6 +7,8 @@ import { ConfigSlice, createConfigSlice } from './config-slice';
 import { PromptSlice, createPromptSlice } from './prompt-slice';
 import { ToastSlice, createToastSlice } from './toast-slice';
 import localforage from 'localforage';
+import { ChatInterface } from '@type/chat';
+import { generateDefaultChat } from '@constants/chat';
 
 import {
   LocalStorageInterfaceV0ToV1,
@@ -66,6 +68,124 @@ export const createPartializedState = (state: StoreState) => ({
   squashSystemMessages: state.squashSystemMessages,
 });
 
+type partializedState = ReturnType<typeof createPartializedState>
+
+// extend from the partialized state for the unhydrated state, where the chats are undefined and the chatsID are used instead
+type partializedStateUnhydrated = partializedState & {chatsID: string[]}
+
+type JsonStorageOptions = {
+  reviver?: (key: string, value: unknown) => unknown
+  replacer?: (key: string, value: unknown) => unknown
+}
+
+export function customJSONStorage(
+  getStorage: () => StateStorage,
+  options?: JsonStorageOptions,
+): PersistStorage<partializedState> | undefined {
+  let storage: StateStorage | undefined
+  try {
+    storage = getStorage()
+  } catch {
+    // prevent error if the storage is not defined (e.g. when server side rendering a page)
+    return
+  }
+  const persistStorage: PersistStorage<partializedState> = {
+    getItem: (name) => {
+      // console.log('getItem', name)
+      // handle both synchronous and asynchronous storage
+      const str = (storage as StateStorage).getItem(name) ?? null
+
+      if (str === null || !(str instanceof Promise)) {
+        return null
+      }
+
+      return str.then((value) => {
+        if (value === null) return null
+        const obj = JSON.parse(value, options?.reviver) as StorageValue<partializedStateUnhydrated>
+        // console.log('obj', obj)
+        //hydrate the chats from the storage
+        if (obj.state.chatsID) {
+          return Promise.all(obj.state.chatsID.map(async (id) => {
+            const chat = await (storage as StateStorage).getItem(id)
+            if (chat === null) {
+              return generateDefaultChat()
+            }
+            return JSON.parse(chat, options?.reviver) as ChatInterface
+          })).then((chats) => {
+            return {...obj, state: {...obj.state, chats, chatsID: undefined}}
+          })
+        }
+        return obj
+      })
+
+
+      // // console.log('str', str)
+      // if (str instanceof Promise) {
+      //   if (str === null) {
+      //     return null
+      //   }
+      //   const obj = str.then((value) => parse(value))
+      // }
+      // return null
+    },
+    setItem: async (name, newValue) => {
+      // console.log('setItem', name, newValue)
+
+      const addChats = (chats: ChatInterface[]) => {
+        // console.log('addChats', chats)
+        //given the chats, save each chat to a separate key using the chat id
+        return Promise.all(chats.map(async (chat) => 
+          await (storage as StateStorage).setItem(chat.id, JSON.stringify(chat, options?.replacer))))
+      }
+
+      const removeChats = (chatsID: string[]) => {
+        return Promise.all(chatsID.map(async (id) => await (storage as StateStorage).removeItem(id)))
+      }
+
+        // chats.forEach((chat) => {
+        //   (storage as StateStorage).setItem(chat.id, JSON.stringify(chat, options?.replacer))
+        // })
+      //replace the chats with the chat ids in the storage
+      const newChats = newValue.state.chats || []
+      const newChatsID = newChats.map((chat) => chat.id)
+      const partialState: partializedStateUnhydrated = {...newValue.state, chatsID: newChatsID}
+
+      // compare the chats in the storage with the new chats, and only save the new chats
+
+
+      const oldState = await (storage as StateStorage).getItem("free-chat-gpt") ?? null
+      let addChatsContent: ChatInterface[] = []
+      let removeChatsID: string[] = []
+      if (oldState !== null) {
+        const oldChatsID = (JSON.parse(oldState) as StorageValue<partializedStateUnhydrated>).state.chatsID
+        // compute the new chat to be saved to the database using the difference between the old and new chats
+        // also ensure that the current focused chat is saved
+        addChatsContent = newChats.filter((chat) => !oldChatsID.includes(chat.id) || chat.id === newChatsID[newValue.state.currentChatIndex])
+        // compute the chats to be removed from the database
+        removeChatsID = oldChatsID.filter((id) => !newChatsID.includes(id))
+      }
+      await addChats(addChatsContent)
+      await removeChats(removeChatsID)
+      await (storage as StateStorage).setItem( name, JSON.stringify({version: newValue.version, state: {...partialState, chats:undefined}}, options?.replacer),)
+
+      // if (newValue.state.chats) {
+      //   saveChats(newValue.state.chats)
+      //   //@ts-ignore
+      // }
+      // return (storage as StateStorage).setItem(
+      //   name,
+      //   //stringify everything except the chats
+      //   JSON.stringify({...partialState, chats:undefined}, options?.replacer),
+      // )
+    },
+    removeItem: (name) => {
+      // console.log('removeItem', name)
+      return (storage as StateStorage).removeItem(name)
+    },
+  }
+  return persistStorage
+}
+
 const useStore = create<StoreState>()(
   persist(
     (set, get) => ({
@@ -79,7 +199,7 @@ const useStore = create<StoreState>()(
     {
       name: 'free-chat-gpt',
       // @ts-ignore
-      storage: createJSONStorage(() => localforage),
+      storage: customJSONStorage(() => localforage),
       // the setItem and removeItem which returns string causing mismatch is neglected
       partialize: (state) => createPartializedState(state),
       version: 8,

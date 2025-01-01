@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useStore from '@store/store';
+import { v4 as uuidv4 } from 'uuid';
 
 import { ChatInterface } from '@type/chat';
 
@@ -35,6 +36,7 @@ const CloneChat = React.memo(() => {
 
       const clonedChat = JSON.parse(JSON.stringify(chats[index]));
       clonedChat.title = title;
+      clonedChat.id = uuidv4();
 
       const updatedChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
       updatedChats.unshift(clonedChat);
