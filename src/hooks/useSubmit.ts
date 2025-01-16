@@ -86,23 +86,40 @@ const useSubmit = () => {
       if (messages.length === 0) throw new Error('Message exceed max token!');
 
       // search and pop the message if it's prefill, assume there is only one prefill message
-      let prefillMessageIndex = -1;
-      messages.forEach((message, index) => {
-        if (message.role === 'prefill') prefillMessageIndex = index;
-      });
+      // let prefillMessageIndex = -1;
+      // messages.forEach((message, index) => {
+      //   if (message.role === 'prefill') prefillMessageIndex = index;
+      // });
       // save the prefill message
-      let prefillMessage;
-      if (prefillMessageIndex !== -1) {
-        prefillMessage = messages[prefillMessageIndex];
-        messages.splice(prefillMessageIndex, 1);
+      // let prefillMessage;
+      // if (prefillMessageIndex !== -1) {
+      //   prefillMessage = messages[prefillMessageIndex];
+      //   messages.splice(prefillMessageIndex, 1);
+      // }
+
+      // scrap all the above code, now assume there're more than one prefill message
+      // save all the prefill messages
+      let prefillMessagesIndex: number[] = [];
+      messages.forEach((message, index) => {
+        if (message.role === 'prefill') prefillMessagesIndex.push(index);
+      });
+      // will concat all the prefill messages with '\n\n' separator
+      // console.log('prefillMessagesIndex', prefillMessagesIndex);
+      let prefillMessage = "";
+      for (let i = prefillMessagesIndex.length - 1; i >= 0; i--) {
+        if (prefillMessage) prefillMessage = '\n\n' + prefillMessage;
+        prefillMessage = messages[prefillMessagesIndex[i]].content + prefillMessage;
+        messages.splice(prefillMessagesIndex[i], 1);
       }
+
+      // console.log(prefillMessage)
 
       // add the prefill message to the last message (if it's assistant message)
       if (prefillMessage) {
         const lastMessage = messages[messages.length - 1];
         if (lastMessage.role === 'assistant') {
           // lastMessage.content = prefillMessage.content + '\n\n';
-          lastMessage.content = prefillMessage.content;
+          lastMessage.content = prefillMessage;
         }
       }
 
