@@ -30,6 +30,7 @@ import {
   migrateV6,
   migrateV7,
 } from './migrate';
+import { use } from 'i18next';
 
 export type StoreState = ChatSlice &
   InputSlice &
@@ -112,6 +113,7 @@ export function customJSONStorage(
             }
             return JSON.parse(chat, options?.reviver) as ChatInterface
           })).then((chats) => {
+            // console.log('chats', chats)
             return {...obj, state: {...obj.state, chats, chatsID: undefined}}
           })
         }
@@ -129,6 +131,8 @@ export function customJSONStorage(
       // return null
     },
     setItem: async (name, newValue) => {
+      if (!useStore.persist.hasHydrated()) return;
+      // console.log(useStore.persist.hasHydrated())
       // console.log('setItem', name, newValue)
 
       const addChats = (chats: ChatInterface[]) => {
