@@ -67,6 +67,7 @@ export const createPartializedState = (state: StoreState) => ({
   additionalBodyParameters: state.additionalBodyParameters,
   systemJailbreak: state.systemJailbreak,
   squashSystemMessages: state.squashSystemMessages,
+  generating: state.generating,
 });
 
 type partializedState = ReturnType<typeof createPartializedState>
@@ -132,6 +133,7 @@ export function customJSONStorage(
     },
     setItem: async (name, newValue) => {
       if (!useStore.persist.hasHydrated()) return;
+      if (newValue.state.generating) return;
       // console.log(useStore.persist.hasHydrated())
       // console.log('setItem', name, newValue)
 
