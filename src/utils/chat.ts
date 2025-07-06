@@ -1,5 +1,6 @@
 import html2canvas from 'html2canvas';
 import { ChatInterface, MessageInterface } from '@type/chat';
+import { Prompt } from '@type/prompt';
 
 // Function to convert HTML to an image using html2canvas
 export const htmlToImg = async (html: HTMLDivElement) => {
@@ -52,3 +53,13 @@ export const getMessages = (chat: ChatInterface) => {
   // messages.shift(); // remove the first dummy message
   return messages;
 };
+
+export const simpleMustache = (template: string, prompts: Prompt[]) => {
+  let result = template;
+  prompts.forEach((prompt) => {
+    // support  arbitrary whitespace around the variable name
+    const regex = new RegExp(`{{\\s*${prompt.name}\\s*}}`, 'g');
+    result = result.replace(regex, prompt.prompt);
+  });
+  return result;
+}

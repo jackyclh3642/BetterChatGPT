@@ -7,7 +7,7 @@ import { parseEventSource } from '@api/helper';
 import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
 import { _defaultChatConfig } from '@constants/chat';
 import { officialAPIEndpoint } from '@constants/auth';
-import { getMessages } from '@utils/chat';
+import { getMessages, simpleMustache } from '@utils/chat';
 import { get } from 'lodash';
 
 const useSubmit = () => {
@@ -23,6 +23,7 @@ const useSubmit = () => {
   const additionalBodyParameters = useStore((state) => state.additionalBodyParameters);
   const systemJailbreak = useStore((state) => state.systemJailbreak);
   const squashSystemMessages = useStore((state) => state.squashSystemMessages);
+  const prompts = useStore((state) => state.prompts);
 
   const generateTitle = async (
     message: MessageInterface[]
@@ -183,6 +184,13 @@ const useSubmit = () => {
           }
         }
       }
+
+      // Do a simple mustache replacement for the messages
+      messages.forEach((message) => {
+        if (message.content) {
+          message.content = simpleMustache(message.content, prompts);
+        }
+      })
 
       // // Set the jailbreak role to system for chat completion
       // messages.forEach((message) => {

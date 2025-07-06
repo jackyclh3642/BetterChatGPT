@@ -32,7 +32,7 @@ import DeleteButton from './Button/DeleteButton';
 import MarkdownModeButton from './Button/MarkdownModeButton';
 
 import CodeBlock from '../CodeBlock';
-import { getMessages } from '@utils/chat';
+import { getMessages, simpleMustache } from '@utils/chat';
 import LeftButton from './Button/LeftButton';
 import RightButton from './Button/RightButton';
 import { Role } from '@type/chat';
@@ -66,6 +66,9 @@ const ContentView = memo(
         state.chats ? getMessages(state.chats[state.currentChatIndex]) : []
     );
     const generating = useStore((state) => state.generating);
+    const prompts = useStore((state) => state.prompts);
+
+    const renderedContent = simpleMustache(content, prompts);
 
     const handleDelete = () => {
       const updatedChats: ChatInterface[] = JSON.parse(
@@ -181,10 +184,10 @@ const ContentView = memo(
                 p,
               }}
             >
-              {content}
+              {renderedContent}
             </ReactMarkdown>
           ) : (
-            <span className='whitespace-pre-wrap'>{content}</span>
+            <span className='whitespace-pre-wrap'>{renderedContent}</span>
           )}
         </div>
         <div className='flex justify-end gap-2 w-full mt-2'>
