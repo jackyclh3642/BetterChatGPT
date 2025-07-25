@@ -1,19 +1,66 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useStore from '@store/store';
+import { getMessages } from '@utils/chat';
 
 import { useTranslation } from 'react-i18next';
 import { matchSorter } from 'match-sorter';
 import { Prompt } from '@type/prompt';
 
 import useHideOnOutsideClick from '@hooks/useHideOnOutsideClick';
+import { generateDefaultChat } from '@constants/chat';
+
+import { MessageInterface } from '@type/chat';
+import { v4 as uuidv4 } from 'uuid';
+import { use } from 'i18next';
 
 const CommandPrompt = ({
   _setContent,
 }: {
   _setContent: React.Dispatch<React.SetStateAction<string>>;
 }) => {
+
+  // Do a search on chat (a tree) to collect all leaves which is of targetDepth
+  const bfsCollectLeaves = (root: MessageInterface, targetDepth: number) => {
+    const leaves: Prompt[] = [];
+    const queue: { node: MessageInterface; depth: number }[] = [{ node: root, depth: 0 }];
+
+    while (queue.length > 0) {
+      const { node, depth } = queue.shift()!;
+      if (depth === targetDepth) {
+        // Create a new prompt for each leaf node, the name is just the first 20 characters of the content
+        // skip anything that has no content
+        if (node.content.trim() === '') continue;
+        // skip anything if the content is already in the prompt library
+        if (leaves.some((p) => p.prompt === node.content)) continue;
+        const prompt: Prompt = {
+          id: uuidv4(),
+          prompt: node.content,
+          name: node.content.slice(0, 20) + (node.content.length > 20 ? '...' : ''),
+        };
+        leaves.push(prompt);
+      } else if (depth < targetDepth) {
+        for (const child of node.children) {
+          queue.push({ node: child, depth: depth + 1 });
+        }
+      }
+    }
+
+    return leaves;
+  }
+
   const { t } = useTranslation();
-  const prompts = useStore((state) => state.prompts);
+
+  const chat = useStore(
+    (state) =>
+      state.chats ? state.chats[state.currentChatIndex] : generateDefaultChat()
+  );
+  const messages = getMessages(chat);
+  const targetDepth = messages.length;
+  const prompts = bfsCollectLeaves(chat.messages, targetDepth);
+
+  
+  // const prompts = useStore((state) => state.prompts);
+  // const [_prompts, _setPrompts] = useState<Prompt[]>([prompts]);
   const [_prompts, _setPrompts] = useState<Prompt[]>(prompts);
   const [input, setInput] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,8 +75,8 @@ const CommandPrompt = ({
   }, [dropDown]);
 
   useEffect(() => {
-    const filteredPrompts = matchSorter(useStore.getState().prompts, input, {
-      keys: ['name'],
+    const filteredPrompts = matchSorter(prompts, input, {
+      keys: ['prompt'],
     });
     _setPrompts(filteredPrompts);
   }, [input]);
@@ -37,7 +84,7 @@ const CommandPrompt = ({
   useEffect(() => {
     _setPrompts(prompts);
     setInput('');
-  }, [prompts]);
+  }, [chat]);
 
   return (
     <div className='relative max-wd-sm' ref={dropDownRef}>
@@ -69,7 +116,7 @@ const CommandPrompt = ({
             <li
               className='px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer text-start w-full'
               onClick={() => {
-                _setContent((prev) => prev + cp.prompt);
+                _setContent((prev) => cp.prompt);
                 setDropDown(false);
               }}
               key={cp.id}
