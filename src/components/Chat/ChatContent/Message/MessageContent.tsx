@@ -12,24 +12,33 @@ const MessageContent = ({
   alt, // This is the thinking tokens, if present, it will be shown in the edit view
   messageIndex,
   sticky = false,
-  isLast = false,
+  isShowAlt = false,
 }: {
   role: Role;
   content: string;
   alt?: string;
   messageIndex: number;
   sticky?: boolean;
-  isLast: boolean;
+  isShowAlt?: boolean;
 }) => {
   const [isEdit, setIsEdit] = useState<boolean>(sticky);
   const advancedMode = useStore((state) => state.advancedMode);
-  const generating = useStore((state) => state.generating);
 
   return (
     <div className='relative flex flex-col gap-2 md:gap-3 lg:w-[calc(100%-115px)]'>
       {advancedMode && <div className='flex flex-grow flex-col gap-3'></div>}
+      { alt && isShowAlt && (
+        <div className = "p-5 py-3 pl-6 border my-1 mb-6 border-l-8" style={{ borderRadius: '0.25rem', borderColor: '#565869'}}>
+          <ReasoningView
+            alt={alt}
+            setIsEdit={setIsEdit}
+            messageIndex={messageIndex}
+          />
+        </div>
+        )
+      }
       { /* This is the alt which will be normally collpasble accordin */ }
-      { alt && (
+      {/* { alt && (
         <details className = "group border" style={{ borderRadius: '0.25rem', borderColor: '#565869'}} open={generating && isLast  && false}>
           <summary className="flex items-center justify-between btn btn-neutral cursor-pointer list-none" style={{marginTop: '-1px', marginRight: '-1px', marginLeft: '-1px'}}>
             <span className="prose dark:prose-invert">Reasoning{generating&&content.length===0?"...":""}</span>
@@ -51,7 +60,7 @@ const MessageContent = ({
             />
           </div>
         </details>
-      )}
+      )} */}
       {isEdit ? (
         <EditView
           content={content}

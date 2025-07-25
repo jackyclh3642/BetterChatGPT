@@ -1,5 +1,6 @@
 import React from 'react';
 import useStore from '@store/store';
+import { useState, useEffect } from 'react';
 
 import Avatar from './Avatar';
 import MessageContent from './MessageContent';
@@ -14,6 +15,7 @@ import RefreshButton from './View/Button/RefreshButton';
 import BookmarkButton from './View/Button/BookmarkButton';
 import JumpIntoButton from './View/Button/JumpIntoButton';
 import RightMostButton from './View/Button/RightMostButton';
+import ShowAltButton from './View/Button/ShowAltButton';
 
 // const backgroundStyle: { [role in Role]: string } = {
 //   user: 'dark:bg-gray-800',
@@ -43,14 +45,16 @@ const Message = React.memo(
     const setChats = useStore((state) => state.setChats);
     const currentChatIndex = useStore((state) => state.currentChatIndex);
     const { handleSubmit } = useSubmit();
+    const [isShowAlt, setIsShowAlt] = useState<boolean>(false);
     const messages = useStore(
       (state) =>
         // state.chats ? state.chats[state.currentChatIndex].messages : [],
         state.chats ? getMessages(state.chats[state.currentChatIndex]) : []
     );
 
-    
-
+    useEffect(() => {
+      setIsShowAlt(messageIndex === messages.length - 1);
+    }, [generating]);
     // run a breath first search and remember the childID queue of the next favorite message chain
     // the initial search queue is the child of the current message, and the id array
 
@@ -190,6 +194,11 @@ const Message = React.memo(
       setChats(updatedChats);
     }
 
+    const handleShowAlt = () => {
+      if (generating) return;
+      setIsShowAlt(!isShowAlt);
+    }
+
     return (
       <div
         className={`w-full border-b border-black/10 dark:border-gray-900/50 text-gray-800 dark:text-gray-100 group ${
@@ -219,6 +228,7 @@ const Message = React.memo(
 
               {/* Todo: to refactor this into its own component */}
               {messageIndex !== 0 && !sticky && <>
+                {alt && (<div className='self-center'><ShowAltButton onClick={handleShowAlt} isShowAlt={isShowAlt}/></div>)}
                 <div className='self-center'><BookmarkButton onClick={handleBookmark} isBookmark={messages[messageIndex].favorite}/></div>
                 <div className='self-center'><LeftButton onClick={handleMoveLeft}/></div>
                 <div className = 'text-center dark:text-gray-400 md:invisible md:group-hover:visible visible'>
@@ -236,7 +246,7 @@ const Message = React.memo(
               messageIndex={messageIndex}
               sticky={sticky}
               alt={alt}
-              isLast={messageIndex === messages.length - 1}
+              isShowAlt={isShowAlt}
             />
           </div>
         </div>
