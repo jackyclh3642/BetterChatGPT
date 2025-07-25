@@ -232,21 +232,34 @@ const useSubmit = () => {
         const reader = stream.getReader();
         let reading = true;
         let partial = '';
+        let partial_alt = '';
         while (reading && useStore.getState().generating) {
           const { done, value } = await reader.read();
           const result = parseEventSource(
             partial + new TextDecoder().decode(value)
           );
           partial = '';
+          partial_alt = '';
 
           if (result === '[DONE]' || done) {
             reading = false;
           } else {
+            console.log('result', result);
             const resultString = result.reduce((output: string, curr) => {
               if (typeof curr === 'string') {
                 partial += curr;
               } else {
                 const content = curr.choices[0]?.delta?.content ?? null;
+                if (content) output += content;
+              }
+              return output;
+            }, '');
+
+            const resultAltString = result.reduce((output: string, curr) => {
+              if (typeof curr === 'string') {
+                partial_alt += curr;
+              } else {
+                const content = curr.choices[0]?.delta?.reasoning ?? null;
                 if (content) output += content;
               }
               return output;
@@ -260,6 +273,16 @@ const useSubmit = () => {
               updatedChats[currentChatIndex]
             );
             updatedMessages[updatedMessages.length - 1].content += resultString;
+
+            // The resultAlt is null by default, so only set or update it if it's not null
+            if (resultAltString) {
+              if (updatedMessages[updatedMessages.length - 1].alt) {
+                updatedMessages[updatedMessages.length - 1].alt += resultAltString;
+              } else {
+                updatedMessages[updatedMessages.length - 1].alt = resultAltString;
+              }
+            }
+
             // strip left white space for good measure
             updatedMessages[updatedMessages.length - 1].content = updatedMessages[
               updatedMessages.length - 1

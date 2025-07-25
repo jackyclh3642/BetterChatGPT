@@ -9,6 +9,7 @@ export interface MessageInterface {
   favorite: boolean;
   role: Role;
   content: string;
+  alt?: string;
   children: MessageInterface[];
 }
 

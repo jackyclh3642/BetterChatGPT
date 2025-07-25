@@ -28,11 +28,13 @@ const Message = React.memo(
     content,
     messageIndex,
     sticky = false,
+    alt,
   }: {
     role: Role;
     content: string;
     messageIndex: number;
     sticky?: boolean;
+    alt?: string;
   }) => {
     const hideSideMenu = useStore((state) => state.hideSideMenu);
     const advancedMode = useStore((state) => state.advancedMode);
@@ -233,6 +235,8 @@ const Message = React.memo(
               content={content}
               messageIndex={messageIndex}
               sticky={sticky}
+              alt={alt}
+              isLast={messageIndex === messages.length - 1}
             />
           </div>
         </div>

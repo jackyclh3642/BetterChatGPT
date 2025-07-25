@@ -73,6 +73,7 @@ const ChatContent = () => {
                     role={message.role}
                     content={message.content}
                     messageIndex={index}
+                    alt={message.alt}
                   />
                   {/* {!generating && advancedMode && <NewMessageButton messageIndex={index} />} */}
                 </React.Fragment>
@@ -80,6 +81,7 @@ const ChatContent = () => {
             ))}
           </div>
 
+          {/* This is the sticky message (input) at the end of the chat */}
           <Message
             role={inputRole}
             content=''
