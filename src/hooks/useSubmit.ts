@@ -244,7 +244,7 @@ const useSubmit = () => {
           if (result === '[DONE]' || done) {
             reading = false;
           } else {
-            console.log('result', result);
+            // console.log('result', result);
             const resultString = result.reduce((output: string, curr) => {
               if (typeof curr === 'string') {
                 partial += curr;
