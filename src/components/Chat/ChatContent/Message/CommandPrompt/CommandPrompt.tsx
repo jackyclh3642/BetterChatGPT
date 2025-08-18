@@ -15,8 +15,10 @@ import { use } from 'i18next';
 
 const CommandPrompt = ({
   _setContent,
+  messageIndex,
 }: {
   _setContent: React.Dispatch<React.SetStateAction<string>>;
+  messageIndex: number;
 }) => {
 
   // Do a search on chat (a tree) to collect all leaves which is of targetDepth
@@ -54,8 +56,8 @@ const CommandPrompt = ({
     (state) =>
       state.chats ? state.chats[state.currentChatIndex] : generateDefaultChat()
   );
-  const messages = getMessages(chat);
-  const targetDepth = messages.length;
+  // const messages = getMessages(chat);
+  const targetDepth = messageIndex;
   const prompts = bfsCollectLeaves(chat.messages, targetDepth);
 
   

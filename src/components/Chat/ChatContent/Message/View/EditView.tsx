@@ -330,6 +330,7 @@ const EditView = ({
         // setIsModalOpen={setIsModalOpen}
         setIsEdit={setIsEdit}
         _setContent={_setContent}
+        messageIndex={messageIndex}
       />
       {/* {isModalOpen && (
         <PopupModal
@@ -352,6 +353,7 @@ const EditViewButtons = memo(
     // setIsModalOpen,
     setIsEdit,
     _setContent,
+    messageIndex
   }: {
     sticky?: boolean;
     handleGenerate: () => void;
@@ -360,6 +362,7 @@ const EditViewButtons = memo(
     // setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
     _setContent: React.Dispatch<React.SetStateAction<string>>;
+    messageIndex: number;
   }) => {
     const { t } = useTranslation();
     const generating = useStore.getState().generating;
@@ -437,7 +440,7 @@ const EditViewButtons = memo(
           )}
         </div>
         {sticky && advancedMode && <TokenCount />}
-        <CommandPrompt _setContent={_setContent} />
+        <CommandPrompt _setContent={_setContent} messageIndex={messageIndex}/>
       </div>
     );
   }
