@@ -155,6 +155,8 @@ export const getChatCompletionStream = async (
     model,
     ...additionalBodyParametersJSON
   }
+  // remove the raw additionalBodyParameters string from the body if it is there
+  body.additionalBodyParameters = undefined;
   
   // console.log(body)
 

@@ -25,6 +25,7 @@ const ConfigMenu = ({
   const [_frequencyPenalty, _setFrequencyPenalty] = useState<number>(
     config.frequency_penalty
   );
+  const [_additionalBodyParameters, _setAdditionalBodyParameters] = useState<string>(config.additionalBodyParameters || '');
   const { t } = useTranslation('model');
 
   const handleConfirm = () => {
@@ -35,8 +36,26 @@ const ConfigMenu = ({
       presence_penalty: _presencePenalty,
       top_p: _topP,
       frequency_penalty: _frequencyPenalty,
+      additionalBodyParameters: _additionalBodyParameters,
     });
     setIsModalOpen(false);
+  };
+
+  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
+    e.target.style.maxHeight = `${e.target.scrollHeight}px`;
+  };
+
+  const handleOnFocus = (e: React.FocusEvent<HTMLTextAreaElement, Element>) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
+    e.target.style.maxHeight = `${e.target.scrollHeight}px`;
+  };
+
+  const handleOnBlur = (e: React.FocusEvent<HTMLTextAreaElement, Element>) => {
+    e.target.style.height = 'auto';
+    e.target.style.maxHeight = '2.5rem';
   };
 
   return (
@@ -66,6 +85,23 @@ const ConfigMenu = ({
           _frequencyPenalty={_frequencyPenalty}
           _setFrequencyPenalty={_setFrequencyPenalty}
         />
+        <div className = 'mt-5 pt-5 border-t border-gray-500'>
+          <div className='block text-sm font-medium text-gray-900 dark:text-white'>
+              Additional Body Parameters
+          </div>
+          <textarea
+            className='my-2 mx-0 px-2 resize-none rounded-lg bg-transparent overflow-y-hidden leading-7 p-1 border border-gray-400/50 focus:ring-1 focus:ring-blue w-full max-h-10 transition-all text-sm text-gray-900 dark:text-gray-300'
+            onFocus={handleOnFocus}
+            onBlur={handleOnBlur}
+            onChange={(e) => {
+              // _setAdditionalBodyParameters(JSON.parse(e.target.value));
+              _setAdditionalBodyParameters(e.target.value);
+            }}
+            onInput={handleInput}
+            value={_additionalBodyParameters}
+            rows={1}
+          ></textarea>
+        </div>
       </div>
     </PopupModal>
   );
@@ -154,9 +190,9 @@ export const MaxTokenSlider = ({
         step={1}
         className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer'
       />
-      <div className='min-w-fit text-gray-500 dark:text-gray-300 text-sm mt-2'>
+      {/* <div className='min-w-fit text-gray-500 dark:text-gray-300 text-sm mt-2'>
         {t('token.description')}
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -171,7 +207,8 @@ export const TemperatureSlider = ({
   const { t } = useTranslation('model');
 
   return (
-    <div className='mt-5 pt-5 border-t border-gray-500'>
+    // <div className='mt-5 pt-5 border-t border-gray-500'>
+    <div className='mt-6'>
       <label className='block text-sm font-medium text-gray-900 dark:text-white'>
         {t('temperature.label')}: {_temperature}
       </label>
@@ -187,9 +224,9 @@ export const TemperatureSlider = ({
         step={0.1}
         className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer'
       />
-      <div className='min-w-fit text-gray-500 dark:text-gray-300 text-sm mt-2'>
+      {/* <div className='min-w-fit text-gray-500 dark:text-gray-300 text-sm mt-2'>
         {t('temperature.description')}
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -204,7 +241,8 @@ export const TopPSlider = ({
   const { t } = useTranslation('model');
 
   return (
-    <div className='mt-5 pt-5 border-t border-gray-500'>
+    // <div className='mt-5 pt-5 border-t border-gray-500'>
+    <div className='mt-6'>
       <label className='block text-sm font-medium text-gray-900 dark:text-white'>
         {t('topP.label')}: {_topP}
       </label>
@@ -220,9 +258,9 @@ export const TopPSlider = ({
         step={0.05}
         className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer'
       />
-      <div className='min-w-fit text-gray-500 dark:text-gray-300 text-sm mt-2'>
+      {/* <div className='min-w-fit text-gray-500 dark:text-gray-300 text-sm mt-2'>
         {t('topP.description')}
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -73,6 +73,30 @@ const useSubmit = () => {
     setGenerating(true);
 
     try {
+
+      //TODO: make this ugly code better
+      let globalAdditionalBodyParametersJSON = {};
+      let localAdditionalBodyParametersJSON = {};
+      try {
+        globalAdditionalBodyParametersJSON = JSON.parse(additionalBodyParameters)
+      } catch (e) {
+        throw new Error('Invalid additionalBodyParameters in API config')
+      }
+      if (dummyChats[currentChatIndex].config) {
+        try {
+          localAdditionalBodyParametersJSON = JSON.parse(
+            dummyChats[currentChatIndex].config.additionalBodyParameters || '{}'
+          );
+        } catch (e) {
+          throw new Error('Invalid additionalBodyParameters in chat config');
+        }
+      }
+      // merge the two objects, local overrides global
+      const additionalBodyParametersJSON: any = {
+        ...globalAdditionalBodyParametersJSON
+        , ...localAdditionalBodyParametersJSON
+      };
+
       let stream;
       // if (chats[currentChatIndex].messages.length === 0)
       if (getMessages(dummyChats[currentChatIndex]).length === 0)
@@ -192,6 +216,62 @@ const useSubmit = () => {
         }
       })
 
+      // additiona support for a noass module support from additionalBodyParameters
+      // The behavior is that: if noass is true, then will combine all messages into one User message
+      // The system will be added as is into the final single message
+      // The assistant and user messages will be wrapped by tags, if not set in additionalBodyParameters, then will use the default tags
+      if (additionalBodyParametersJSON.noass) {
+        const userStartTag = additionalBodyParametersJSON.noass.userStartTag ?? '<user>\n';
+        const userEndTag = additionalBodyParametersJSON.noass.userEndTag ?? '\n</user>';
+        const assistantStartTag = additionalBodyParametersJSON.noass.assistantStartTag ?? '<assistant>\n';
+        const assistantEndTag = additionalBodyParametersJSON.noass.assistantEndTag ?? '\n</assistant>';
+        const systemStartTag = additionalBodyParametersJSON.noass.systemStartTag ?? '';
+        const systemEndTag = additionalBodyParametersJSON.noass.systemEndTag ?? '';
+
+        let combinedMessage = '';
+        // when adding the messages together, it will gap each message by two new lines
+        messages.forEach((message) => {
+          if (message.role === 'system') {
+            combinedMessage += systemStartTag + message.content + systemEndTag + '\n\n';
+          } else if (message.role === 'user') {
+            combinedMessage += userStartTag + message.content + userEndTag + '\n\n';
+          } else if (message.role === 'assistant' && message.content !== messages[messages.length - 1].content) {
+            // if the last message is assistant, it will stay outside of the combined message
+            combinedMessage += assistantStartTag + message.content + assistantEndTag + '\n\n';
+          }
+        });
+        // remove the last two new lines
+        combinedMessage = combinedMessage.trimEnd();
+        if (messages[messages.length - 1].role === 'assistant') {
+          // just keep the combined message and the last assistant message without combining
+          const lastMessage = messages[messages.length - 1].content;
+          messages.length = 0;
+          messages.push({
+            role: 'user',
+            content: combinedMessage,
+            childId: -1, // Dummy childId
+            children: [],
+            favorite: false
+          });
+          messages.push({
+            role: 'assistant',
+            content: lastMessage,
+            childId: -1, // Dummy childId
+            children: [],
+            favorite: false
+          });
+        } else {
+          messages.length = 0; // clear the messages
+          messages.push({
+            role: 'user',
+            content: combinedMessage,
+            childId: -1, // Dummy childId
+            children: [],
+            favorite: false
+          });
+        }
+      }
+
       // // Set the jailbreak role to system for chat completion
       // messages.forEach((message) => {
       //   if (message.role === 'jailbreak') message.role = 'system';
@@ -211,7 +291,7 @@ const useSubmit = () => {
           messages,
           dummyChats[currentChatIndex].config,
           undefined,
-          additionalBodyParameters
+          JSON.stringify(additionalBodyParametersJSON)
         );
       } else if (apiKey) {
         // own apikey
@@ -220,7 +300,7 @@ const useSubmit = () => {
           messages,
           dummyChats[currentChatIndex].config,
           apiKey,
-          additionalBodyParameters
+          JSON.stringify(additionalBodyParametersJSON)
         );
       }
 
