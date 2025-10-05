@@ -160,6 +160,19 @@ const useSubmit = () => {
         }
       }
 
+      // loop through the messages and combine the consecutive user messages if squashUserMessages is true
+      if (true) {
+        let i = 0;
+        while (i < messages.length - 1) {
+          if (messages[i].role === 'user' && messages[i + 1].role === 'user') {
+            messages[i].content += '\n\n' + messages[i + 1].content;
+            messages.splice(i + 1, 1);
+          } else {
+            i++;
+          }
+        }
+      }
+
       if (jailbreakMessage) {
         if (systemJailbreak) {
           jailbreakMessage.role = 'system';
