@@ -86,6 +86,13 @@ const useSubmit = () => {
       );
       if (messages.length === 0) throw new Error('Message exceed max token!');
 
+      // Do a simple mustache replacement for the messages
+      messages.forEach((message) => {
+        if (message.content) {
+          message.content = simpleMustache(message.content, prompts);
+        }
+      })
+
       // search and pop the message if it's prefill, assume there is only one prefill message
       // let prefillMessageIndex = -1;
       // messages.forEach((message, index) => {
@@ -197,13 +204,6 @@ const useSubmit = () => {
           }
         }
       }
-
-      // Do a simple mustache replacement for the messages
-      messages.forEach((message) => {
-        if (message.content) {
-          message.content = simpleMustache(message.content, prompts);
-        }
-      })
 
       // // Set the jailbreak role to system for chat completion
       // messages.forEach((message) => {
