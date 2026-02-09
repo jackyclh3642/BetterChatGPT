@@ -67,6 +67,7 @@ export const createPartializedState = (state: StoreState) => ({
   additionalBodyParameters: state.additionalBodyParameters,
   systemJailbreak: state.systemJailbreak,
   squashSystemMessages: state.squashSystemMessages,
+  simulateThinking: state.simulateThinking,
   generating: state.generating,
 });
 

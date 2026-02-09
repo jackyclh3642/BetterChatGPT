@@ -20,6 +20,7 @@ export interface ConfigSlice {
   additionalBodyParameters: string;
   systemJailbreak: boolean;
   squashSystemMessages: boolean;
+  simulateThinking: boolean;
   setOpenConfig: (openConfig: boolean) => void;
   setTheme: (theme: Theme) => void;
   setAutoTitle: (autoTitle: boolean) => void;
@@ -36,6 +37,7 @@ export interface ConfigSlice {
   setAdditionalBodyParameters: (additionalBodyParameters: string) => void;
   setSystemJailbreak: (systemJailbreak: boolean) => void;
   setSquashSystemMessages: (squashSystemMessages: boolean) => void;
+  setSimulateThinking: (simulateThinking: boolean) => void;
 }
 
 export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
@@ -55,6 +57,7 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
   additionalBodyParameters: "",
   systemJailbreak: false,
   squashSystemMessages: true,
+  simulateThinking: false,
   setOpenConfig: (openConfig: boolean) => {
     set((prev: ConfigSlice) => ({
       ...prev,
@@ -149,6 +152,12 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
     set((prev: ConfigSlice) => ({
       ...prev,
       squashSystemMessages: squashSystemMessages,
+    }));
+  },
+  setSimulateThinking: (simulateThinking: boolean) => {
+    set((prev: ConfigSlice) => ({
+      ...prev,
+      simulateThinking: simulateThinking,
     }));
   },
 });

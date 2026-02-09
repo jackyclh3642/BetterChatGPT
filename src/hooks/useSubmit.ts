@@ -8,7 +8,9 @@ import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
 import { _defaultChatConfig } from '@constants/chat';
 import { officialAPIEndpoint } from '@constants/auth';
 import { getMessages, simpleMustache } from '@utils/chat';
-import { get } from 'lodash';
+import { get, last, update } from 'lodash';
+
+type ReadingThinkingState = "reading" | "not_reading" | "finished";
 
 const useSubmit = () => {
   const { t, i18n } = useTranslation('api');
@@ -23,6 +25,7 @@ const useSubmit = () => {
   const additionalBodyParameters = useStore((state) => state.additionalBodyParameters);
   const systemJailbreak = useStore((state) => state.systemJailbreak);
   const squashSystemMessages = useStore((state) => state.squashSystemMessages);
+  const simulateThinking = useStore((state) => state.simulateThinking);
   const prompts = useStore((state) => state.prompts);
 
   const generateTitle = async (
@@ -244,6 +247,7 @@ const useSubmit = () => {
           );
         const reader = stream.getReader();
         let reading = true;
+        let readingThinkingState: ReadingThinkingState = simulateThinking ? "not_reading" : "finished";
         let partial = '';
         let partial_alt = '';
         while (reading && useStore.getState().generating) {
@@ -285,7 +289,40 @@ const useSubmit = () => {
             const updatedMessages = getMessages(
               updatedChats[currentChatIndex]
             );
-            updatedMessages[updatedMessages.length - 1].content += resultString;
+
+            const lastMessage = updatedMessages[updatedMessages.length - 1];
+            let lastMessageContent = lastMessage.content + resultString;
+            let lastMessageAlt = lastMessage.alt ?? '';
+            
+            if (simulateThinking && readingThinkingState === "not_reading") {
+              // check if the resultString starts with <thinking> tag, if so, pop it and set readingThinkingState to "reading", redirect the subsequent content to alt field
+              // also, if it is certain that the text cannot be a thinking tag, set readingThinkingState to "finished"
+              if (lastMessageContent.trimStart().startsWith('<thinking>')) {
+                lastMessageContent = lastMessageContent.trimStart().replace('<thinking>', '');
+                readingThinkingState = "reading";
+                lastMessageAlt += lastMessageContent.trimStart();
+                lastMessageContent = '';
+              } else if (!'<thinking>'.startsWith(lastMessageContent.trimStart())) {
+                readingThinkingState = "finished";
+              }
+            }
+            
+            if (simulateThinking && readingThinkingState === "reading") {
+              // redirect the content to alt field
+              lastMessageAlt += lastMessageContent;
+              // check if the resultString contains </thinking> tag, if so, pop it and set readingThinkingState to "finished", keep the previous content in alt field and the subsequent content in content field
+              if (lastMessageAlt.includes('</thinking>')) {
+                const parts = lastMessageAlt.split('</thinking>');
+                lastMessageAlt = parts[0].trimEnd();
+                lastMessageContent = parts.slice(1).join('</thinking>').trimStart();
+                readingThinkingState = "finished";
+              } else {
+                lastMessageContent = '';
+              }
+            }
+
+            lastMessage.content = lastMessageContent;
+            if (simulateThinking && lastMessageAlt) lastMessage.alt = lastMessageAlt;
 
             // The resultAlt is null by default, so only set or update it if it's not null
             if (resultAltString) {

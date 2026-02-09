@@ -18,6 +18,7 @@ import EnterToSubmitToggle from './EnterToSubmitToggle';
 import TotalTokenCost, { TotalTokenCostToggle } from './TotalTokenCost';
 import ClearConversation from '@components/Menu/MenuOptions/ClearConversation';
 import SquashSystemMessagesToggle from './SquashSystemMessagesToggle';
+import SimulateThinkingToggle from './SimulateThinkingToggle';
 
 const SettingsMenu = () => {
   const { t } = useTranslation();
@@ -55,6 +56,7 @@ const SettingsMenu = () => {
               <TotalTokenCostToggle />
               <SystemJailbreakToggle />
               <SquashSystemMessagesToggle />
+              <SimulateThinkingToggle />
             </div>
             <ClearConversation />
             <PromptLibraryMenu />
