@@ -2,6 +2,7 @@ import { Prompt } from '@type/prompt';
 import { getToday } from './date';
 
 import Papa from 'papaparse';
+import { quotes } from 'html2canvas/dist/types/css/property-descriptors/quotes';
 
 export const importPromptCSV = (csvString: string, header: boolean = true) => {
   const results = Papa.parse(csvString, {
@@ -16,7 +17,8 @@ export const importPromptCSV = (csvString: string, header: boolean = true) => {
 
 export const exportPrompts = (prompts: Prompt[]) => {
   const csvString = Papa.unparse(
-    prompts.map((prompt) => ({ name: prompt.name, prompt: prompt.prompt }))
+    prompts.map((prompt) => ({ name: prompt.name, prompt: prompt.prompt })),
+    {quotes: true}
   );
 
   const blob = new Blob([csvString], {
