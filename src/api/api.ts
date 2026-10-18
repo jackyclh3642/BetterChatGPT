@@ -167,7 +167,8 @@ export const getChatCompletionStream = async (
     ...bodyOverride
   }
 
-  body.messages = messages.map((message) => ({role: message.role, content: message.content}));
+  // @ts-ignore
+  body.messages = body.messages.map((message) => ({role: message.role, content: message.content}));
 
   // console.log(body)
 

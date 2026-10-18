@@ -33,6 +33,7 @@ const EditView = ({
 
   const [_content, _setContent] = useState<string>(content);
   const [_identifier, _setIdentifier] = useState<string>(identifier || '');
+  const [_showIdentifier, _setShowIdentifier] = useState<boolean>(!!identifier);
   // const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const textareaRef = React.createRef<HTMLTextAreaElement>();
 
@@ -318,8 +319,8 @@ const EditView = ({
             : ''
         }`}
       >
-        {advancedMode && (
-          <div className='flex items-center gap-2'>
+        {advancedMode && _showIdentifier && (
+          <div className='flex items-center gap-2 animate-[fadeIn_0.15s_ease-out]'>
             <label className='text-[10px] uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider'>
               ID:
             </label>
@@ -330,6 +331,7 @@ const EditView = ({
               onChange={(e) => _setIdentifier(e.target.value)}
               placeholder='message-identifier'
               spellCheck={false}
+              autoFocus
             />
           </div>
         )}
@@ -354,6 +356,9 @@ const EditView = ({
         setIsEdit={setIsEdit}
         _setContent={_setContent}
         messageIndex={messageIndex}
+        showIdentifier={_showIdentifier}
+        setShowIdentifier={_setShowIdentifier}
+        hasIdentifier={!!_identifier}
       />
       {/* {isModalOpen && (
         <PopupModal
@@ -376,7 +381,10 @@ const EditViewButtons = memo(
     // setIsModalOpen,
     setIsEdit,
     _setContent,
-    messageIndex
+    messageIndex,
+    showIdentifier,
+    setShowIdentifier,
+    hasIdentifier,
   }: {
     sticky?: boolean;
     handleGenerate: () => void;
@@ -386,6 +394,9 @@ const EditViewButtons = memo(
     setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
     _setContent: React.Dispatch<React.SetStateAction<string>>;
     messageIndex: number;
+    showIdentifier?: boolean;
+    setShowIdentifier?: React.Dispatch<React.SetStateAction<boolean>>;
+    hasIdentifier?: boolean;
   }) => {
     const { t } = useTranslation();
     const generating = useStore.getState().generating;
@@ -393,7 +404,7 @@ const EditViewButtons = memo(
 
     return (
       <div className='flex'>
-        <div className='flex-1 text-center mt-2 flex justify-center'>
+        <div className='flex-1 text-center mt-2 flex justify-center flex-wrap gap-y-1'>
           {sticky && (
             <button
               className={`btn relative mr-2 btn-primary ${
@@ -434,7 +445,6 @@ const EditViewButtons = memo(
             </div>
           </button>
 
-          
           <button
             className={`btn relative mr-2 ${
               sticky
@@ -452,12 +462,34 @@ const EditViewButtons = memo(
 
           {sticky || (
             <button
-              className='btn relative btn-neutral'
+              className='btn relative mr-2 btn-neutral'
               onClick={() => setIsEdit(false)}
               aria-label={t('cancel') as string}
             >
               <div className='flex items-center justify-center gap-2'>
                 {t('cancel')}
+              </div>
+            </button>
+          )}
+
+          {advancedMode && setShowIdentifier && (
+            <button
+              className={`btn relative text-[10px] font-mono uppercase tracking-wider px-2 ${
+                showIdentifier
+                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 border border-blue-300 dark:border-blue-700'
+                  : hasIdentifier
+                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700'
+                  : 'btn-neutral border border-gray-300 dark:border-gray-600 opacity-60 hover:opacity-100'
+              }`}
+              onClick={() => setShowIdentifier((p) => !p)}
+              title={showIdentifier ? 'Hide identifier' : hasIdentifier ? 'Edit identifier' : 'Add identifier'}
+              aria-label='toggle identifier'
+            >
+              <div className='flex items-center justify-center gap-1'>
+                <span>ID</span>
+                {hasIdentifier && !showIdentifier && (
+                  <span className='w-1.5 h-1.5 rounded-full bg-current' />
+                )}
               </div>
             </button>
           )}
