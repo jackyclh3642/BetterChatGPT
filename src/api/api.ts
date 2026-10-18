@@ -157,18 +157,17 @@ export const getChatCompletionStream = async (
   }
 
   let body: Record<string, unknown>;
-  if (bodyOverride) {
-    body = bodyOverride;
-  } else {
-    body = {
-      messages: messages.map((message)=>({role: message.role, content: message.content})),
-      ...config,
-      max_tokens: undefined,
-      stream: true,
-      model,
-      ...additionalBodyParametersJSON
-    };
+  body = {
+    messages: messages,
+    ...config,
+    max_tokens: undefined,
+    stream: true,
+    model,
+    ...additionalBodyParametersJSON,
+    ...bodyOverride
   }
+
+  body.messages = messages.map((message) => ({role: message.role, content: message.content}));
 
   // console.log(body)
 

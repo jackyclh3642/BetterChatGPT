@@ -18,17 +18,21 @@ const EditView = ({
   setIsEdit,
   messageIndex,
   sticky,
+  identifier,
 }: {
   content: string;
   setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
   messageIndex: number;
   sticky?: boolean;
+  identifier?: string;
 }) => {
   const inputRole = useStore((state) => state.inputRole);
   const setChats = useStore((state) => state.setChats);
   const currentChatIndex = useStore((state) => state.currentChatIndex);
+  const advancedMode = useStore((state) => state.advancedMode);
 
   const [_content, _setContent] = useState<string>(content);
+  const [_identifier, _setIdentifier] = useState<string>(identifier || '');
   // const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const textareaRef = React.createRef<HTMLTextAreaElement>();
 
@@ -89,6 +93,7 @@ const EditView = ({
       childId: -1,
       children: [],
       favorite: false,
+      identifier: _identifier || undefined,
     })
     parentMessage.childId = parentMessage.children.length - 1;
     setIsEdit(false);
@@ -203,15 +208,18 @@ const EditView = ({
         childId: -1,
         children: [],
         favorite: false,
+        identifier: _identifier || undefined,
       });
       parentMessage.childId = parentMessage.children.length - 1;
       // updatedMessages.at(-1)?.children.push({ role: inputRole, content: _content, childId: -1, children: []});
       _setContent('');
+      _setIdentifier('');
       resetTextAreaHeight();
     } else {
       // const editedMessage = updatedMessages[messageIndex];
       // if (messageIndex === 0 || editedMessage.role === 'assistant' || editedMessage.children.length === 0) {
       updatedMessages[messageIndex].content = formatted;
+      updatedMessages[messageIndex].identifier = _identifier || undefined;
       // } else {
       //   const parentMessage = updatedMessages[messageIndex-1];
       //   parentMessage.children.push({
@@ -304,12 +312,27 @@ const EditView = ({
   return (
     <>
       <div
-        className={`w-full ${
+        className={`w-full flex flex-col gap-2 ${
           sticky
             ? 'py-2 md:py-3 px-2 md:px-4 border border-black/10 bg-white dark:border-gray-900/50 dark:text-white dark:bg-gray-700 rounded-md shadow-[0_0_10px_rgba(0,0,0,0.10)] dark:shadow-[0_0_15px_rgba(0,0,0,0.10)]'
             : ''
         }`}
       >
+        {advancedMode && (
+          <div className='flex items-center gap-2'>
+            <label className='text-[10px] uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider'>
+              ID:
+            </label>
+            <input
+              type='text'
+              className='flex-1 bg-transparent border-b border-gray-300 dark:border-gray-600 text-xs font-mono text-gray-700 dark:text-gray-300 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 placeholder:text-gray-400 dark:placeholder:text-gray-600'
+              value={_identifier}
+              onChange={(e) => _setIdentifier(e.target.value)}
+              placeholder='message-identifier'
+              spellCheck={false}
+            />
+          </div>
+        )}
         <textarea
           ref={textareaRef}
           className='m-0 resize-none rounded-lg bg-transparent overflow-y-hidden focus:ring-0 focus-visible:ring-0 leading-7 w-full placeholder:text-gray-500/40'

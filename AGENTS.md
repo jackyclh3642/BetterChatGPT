@@ -118,6 +118,7 @@ Only `user`, `assistant`, `system` reach the backend. `prefill` and `jailbreak` 
 - Linear history = walk from root following `childId` pointers.
 - Branching happens by adding an extra child at any message node.
 - This is why `getMessages(chat)` is needed everywhere.
+- **Messages have an optional `identifier` field** (user-editable label in the editor, shown as a badge in view mode).
 
 ## Important Settings
 | Setting | Slice | Effect |
@@ -129,3 +130,11 @@ Only `user`, `assistant`, `system` reach the backend. `prefill` and `jailbreak` 
 | `autoTitle` | config | Sends a summary request after first assistant reply |
 | `promptEngineeringEnabled` | config | Toggles custom JS scripting |
 | `promptEngineeringScript` | config | JS function body that transforms messages or returns full body |
+
+### Prompt Engineering UI
+- **Location**: Settings → Prompt Library → Prompt Engineering
+- **Editor**: Custom `CodeEditor` component with PrismJS syntax highlighting, tab insertion, dark/light themes. `PopupModal` uses `fullWidth` for a large editing surface.
+- **Preview**: Runs script against the current flattened chat branch, shows:
+  - Result JSON (messages or body) with syntax highlighting
+  - Captured `console.log` output for debugging
+  - Errors in a red banner (non-blocking)

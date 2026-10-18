@@ -13,6 +13,7 @@ const MessageContent = ({
   messageIndex,
   sticky = false,
   isShowAlt = false,
+  identifier,
 }: {
   role: Role;
   content: string;
@@ -20,6 +21,7 @@ const MessageContent = ({
   messageIndex: number;
   sticky?: boolean;
   isShowAlt?: boolean;
+  identifier?: string;
 }) => {
   const [isEdit, setIsEdit] = useState<boolean>(sticky);
   const advancedMode = useStore((state) => state.advancedMode);
@@ -67,6 +69,7 @@ const MessageContent = ({
           setIsEdit={setIsEdit}
           messageIndex={messageIndex}
           sticky={sticky}
+          identifier={identifier}
         />
       ) : (
         <ContentView
@@ -74,6 +77,7 @@ const MessageContent = ({
           content={content}
           setIsEdit={setIsEdit}
           messageIndex={messageIndex}
+          identifier={identifier}
         />
       )}
     </div>

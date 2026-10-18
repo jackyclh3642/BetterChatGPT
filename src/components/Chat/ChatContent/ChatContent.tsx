@@ -74,6 +74,7 @@ const ChatContent = () => {
                     content={message.content}
                     messageIndex={index}
                     alt={message.alt}
+                    identifier={message.identifier}
                   />
                   {/* {!generating && advancedMode && <NewMessageButton messageIndex={index} />} */}
                 </React.Fragment>

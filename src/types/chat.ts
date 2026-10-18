@@ -10,6 +10,7 @@ export interface MessageInterface {
   role: Role;
   content: string;
   alt?: string;
+  identifier?: string;
   children: MessageInterface[];
 }
 

@@ -43,11 +43,13 @@ const ContentView = memo(
     content,
     setIsEdit,
     messageIndex,
+    identifier,
   }: {
     role: Role;
     content: string;
     setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
     messageIndex: number;
+    identifier?: string;
   }) => {
     const { handleSubmit } = useSubmit();
 
@@ -160,6 +162,13 @@ const ContentView = memo(
 
     return (
       <>
+        {identifier && (
+          <div className='mb-1 flex items-center gap-2'>
+            <span className='px-1.5 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600'>
+              {identifier}
+            </span>
+          </div>
+        )}
         <div className='markdown prose w-full md:max-w-full break-words dark:prose-invert dark share-gpt-message'>
           {markdownMode ? (
             <ReactMarkdown

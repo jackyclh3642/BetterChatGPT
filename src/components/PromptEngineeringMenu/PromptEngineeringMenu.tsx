@@ -1,15 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import useStore from '@store/store';
 import { useTranslation } from 'react-i18next';
 
 import PopupModal from '@components/PopupModal';
+import CodeEditor from '@components/CodeEditor';
 import CodeIcon from '@icon/FileTextIcon';
 import PlayIcon from '@icon/PlayIcon';
-import { previewPromptEngineeringScript } from '@utils/promptEngineering';
-import { PromptEngineeringPreviewOutput } from '@utils/promptEngineering';
+import {
+  previewPromptEngineeringScript,
+  PromptEngineeringPreviewOutput,
+} from '@utils/promptEngineering';
 import { getMessages } from '@utils/chat';
 import { limitMessageTokens } from '@utils/messageUtils';
 import { simpleMustache } from '@utils/chat';
+import { ChatInterface } from '@type/chat';
 
 const PromptEngineeringMenu = () => {
   const { t } = useTranslation();
@@ -46,34 +50,27 @@ const PromptEngineeringMenuPopUp = ({
   );
 
   const [_script, _setScript] = useState<string>(promptEngineeringScript);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
-  const [previewOutput, setPreviewOutput] = useState<PromptEngineeringPreviewOutput | null>(null);
+  const [previewOutput, setPreviewOutput] =
+    useState<PromptEngineeringPreviewOutput | null>(null);
 
   const handleSave = () => {
     setPromptEngineeringScript(_script);
     setIsModalOpen(false);
   };
 
-  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    e.target.style.height = 'auto';
-    e.target.style.height = `${e.target.scrollHeight}px`;
-    _setScript(e.target.value);
-  };
-
   const insertTemplate = (template: string) => {
     _setScript(template);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
   };
 
   const handlePreview = () => {
+
     const state = useStore.getState();
     const currentChatIndex = state.currentChatIndex;
     const chats = state.chats;
     const prompts = state.prompts;
+    const dummyChats: ChatInterface[] = JSON.parse(JSON.stringify(chats));
 
     if (!chats || currentChatIndex < 0 || currentChatIndex >= chats.length) {
       setPreviewOutput({
@@ -86,14 +83,14 @@ const PromptEngineeringMenuPopUp = ({
       return;
     }
 
-    const chat = chats[currentChatIndex];
-    let messages = getMessages(chat);
+    const dummyChat = dummyChats[currentChatIndex];
+    let messages = getMessages(dummyChat);
 
     // Token-limit (same as useSubmit)
     messages = limitMessageTokens(
       messages,
-      chat.config.max_tokens,
-      chat.config.model
+      dummyChat.config.max_tokens,
+      dummyChat.config.model
     );
 
     // Mustache substitution (same as useSubmit)
@@ -102,14 +99,29 @@ const PromptEngineeringMenuPopUp = ({
       content: m.content ? simpleMustache(m.content, prompts) : m.content,
     }));
 
+    if (messages[messages.length - 1].content === '') messages.pop();
+    if (messages.length === 0) throw new Error('No messages submitted!');
+    // filter messages so that only role, content, and identifier are passed to the prompt engineering script
+    const filteredMessages = messages.map((message) => {
+      return {
+        role: message.role,
+        content: message.content,
+        identifier: message.identifier,
+        alt: message.alt,
+      };
+    });
+
     const output = previewPromptEngineeringScript(_script, {
-      messages,
-      config: chat.config,
+      // @ts-ignore
+      messages: filteredMessages,
+      config: dummyChat.config,
       apiEndpoint: state.apiEndpoint,
       apiKey: state.apiKey,
-      chatTitle: chat.title,
+      chatTitle: dummyChat.title,
       currentIndex: currentChatIndex,
     });
+
+    console.log('Prompt Engineering Preview Output:', output);
 
     setPreviewOutput(output);
     setIsPreviewOpen(true);
@@ -122,8 +134,9 @@ const PromptEngineeringMenuPopUp = ({
         setIsModalOpen={setIsModalOpen}
         handleConfirm={handleSave}
         cancelButton={true}
+        fullWidth={true}
       >
-        <div className='p-6 border-b border-gray-200 dark:border-gray-600 w-[90vw] max-w-full text-sm text-gray-900 dark:text-gray-300'>
+        <div className='p-6 border-b border-gray-200 dark:border-gray-600 w-[95vw] md:w-[90vw] lg:w-[80vw] max-w-5xl text-sm text-gray-900 dark:text-gray-300'>
           <p className='mb-3 text-xs text-gray-500 dark:text-gray-400'>
             {t('promptEngineeringDescription') as string}
           </p>
@@ -186,13 +199,13 @@ return {
             </button>
           </div>
 
-          <div className='flex gap-2 mb-2'>
-            <textarea
-              ref={textareaRef}
-              className='w-full h-64 p-3 font-mono text-xs bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded resize-y focus:outline-none focus:ring-2 focus:ring-blue-500'
+          <div className='h-96 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 overflow-hidden mb-3'>
+            <CodeEditor
               value={_script}
-              onChange={handleInput}
-              spellCheck={false}
+              onChange={_setScript}
+              language='javascript'
+              className='h-full'
+              placeholder='// Your prompt engineering script...'
             />
           </div>
 
@@ -225,15 +238,18 @@ const PreviewModal = ({
 }) => {
   const { t } = useTranslation();
 
+  // Pretty-print the output data as JSON
   const jsonString = JSON.stringify(output.data, null, 2);
+  const displayLanguage = output.type === 'body' ? 'json' : 'json';
 
   return (
     <PopupModal
       title={t('preview') as string}
       setIsModalOpen={setIsPreviewOpen}
       cancelButton={true}
+      fullWidth={true}
     >
-      <div className='p-6 border-b border-gray-200 dark:border-gray-600 w-[90vw] max-w-full text-sm text-gray-900 dark:text-gray-300'>
+      <div className='p-6 border-b border-gray-200 dark:border-gray-600 w-[95vw] md:w-[90vw] lg:w-[80vw] max-w-5xl text-sm text-gray-900 dark:text-gray-300'>
         {output.error && (
           <div className='mb-4 p-3 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 font-mono text-xs whitespace-pre-wrap'>
             <strong>Error:</strong>
@@ -242,26 +258,40 @@ const PreviewModal = ({
           </div>
         )}
 
-        <div className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400'>
-          {output.type === 'body' ? t('bodyOverride') || 'Body Override' : t('messages') || 'Messages'}
+        <div className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 flex items-center justify-between'>
+          <span>
+            {output.type === 'body'
+              ? t('bodyOverride') || 'Body Override'
+              : t('messages') || 'Messages'}
+            {' '}
+            ({output.type})
+          </span>
         </div>
 
-        <pre className='mb-4 p-3 rounded bg-gray-100 dark:bg-gray-900 font-mono text-xs overflow-auto max-h-80 border border-gray-200 dark:border-gray-700'>
-          {jsonString}
-        </pre>
+        <div className='h-80 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 overflow-hidden mb-4'>
+          <CodeEditor
+            value={jsonString}
+            onChange={() => {}}
+            language={displayLanguage}
+            className='h-full'
+            readOnly
+          />
+        </div>
 
         {output.logs.length > 0 && (
           <>
             <div className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400'>
               Console Output
             </div>
-            <pre className='p-3 rounded bg-gray-100 dark:bg-gray-900 font-mono text-xs overflow-auto max-h-48 border border-gray-200 dark:border-gray-700'>
-              {output.logs.map((log, i) => (
-                <div key={i} className='border-b border-gray-200 dark:border-gray-800 last:border-0 py-1'>
-                  {log}
-                </div>
-              ))}
-            </pre>
+            <div className='h-40 rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 overflow-hidden'>
+              <CodeEditor
+                value={output.logs.join('\n')}
+                onChange={() => {}}
+                language='json'
+                className='h-full'
+                readOnly
+              />
+            </div>
           </>
         )}
       </div>

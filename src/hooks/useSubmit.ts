@@ -102,8 +102,20 @@ const useSubmit = () => {
       // --- PROMPT ENGINEERING SCRIPT INTERJECTION ---
       let peBodyOverride: Record<string, unknown> | undefined = undefined;
       if (promptEngineeringEnabled && promptEngineeringScript.trim()) {
+        if (messages[messages.length - 1].content === '') messages.pop();
+        if (messages.length === 0) throw new Error('No messages submitted!');
+        // filter messages so that only role, content, and identifier are passed to the prompt engineering script
+        const filteredMessages = messages.map((message) => {
+          return {
+            role: message.role,
+            content: message.content,
+            identifier: message.identifier,
+            alt: message.alt,
+          };
+        });
         const peResult = runPromptEngineeringScript(promptEngineeringScript, {
-          messages,
+          // @ts-ignore
+          messages: filteredMessages,
           config: dummyChats[currentChatIndex].config,
           apiEndpoint,
           apiKey,
@@ -112,6 +124,10 @@ const useSubmit = () => {
         });
         if ('body' in peResult) {
           peBodyOverride = peResult.body;
+          // raise error if the body does not contain messages key
+          if (!peBodyOverride.hasOwnProperty('messages')) {
+            throw new Error('Prompt engineering script must return messages in the body!');
+          }
         } else {
           // Replace messages with script output
           messages.length = 0;
@@ -119,8 +135,8 @@ const useSubmit = () => {
         }
       }
 
-      // If full body override is active, skip the rest of the pipeline
-      if (!peBodyOverride) {
+      // If promptEngineering is active, skip the rest of the pipeline
+      if (!promptEngineeringEnabled) {
       // search and pop the message if it's prefill, assume there is only one prefill message
       // let prefillMessageIndex = -1;
       // messages.forEach((message, index) => {
@@ -232,6 +248,7 @@ const useSubmit = () => {
           }
         }
       }
+      } // end of !promptEngineering block
 
       // // Set the jailbreak role to system for chat completion
       // messages.forEach((message) => {
@@ -249,47 +266,22 @@ const useSubmit = () => {
         // other endpoints
         stream = await getChatCompletionStream(
           useStore.getState().apiEndpoint,
-          messages,
+          peBodyOverride ? [] : messages,
           dummyChats[currentChatIndex].config,
           undefined,
-          additionalBodyParameters
+          additionalBodyParameters,
+          peBodyOverride
         );
       } else if (apiKey) {
         // own apikey
         stream = await getChatCompletionStream(
           useStore.getState().apiEndpoint,
-          messages,
+          peBodyOverride ? [] : messages,
           dummyChats[currentChatIndex].config,
           apiKey,
-          additionalBodyParameters
+          additionalBodyParameters,
+          peBodyOverride
         );
-      }
-      } // end of !peBodyOverride block
-
-      // --- FULL BODY OVERRIDE PATH ---
-      if (peBodyOverride) {
-        if (!apiKey || apiKey.length === 0) {
-          if (apiEndpoint === officialAPIEndpoint) {
-            throw new Error(t('noApiKeyWarning') as string);
-          }
-          stream = await getChatCompletionStream(
-            useStore.getState().apiEndpoint,
-            [],
-            dummyChats[currentChatIndex].config,
-            undefined,
-            additionalBodyParameters,
-            peBodyOverride
-          );
-        } else {
-          stream = await getChatCompletionStream(
-            useStore.getState().apiEndpoint,
-            [],
-            dummyChats[currentChatIndex].config,
-            apiKey,
-            additionalBodyParameters,
-            peBodyOverride
-          );
-        }
       }
 
       if (stream) {
