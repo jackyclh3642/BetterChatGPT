@@ -8,6 +8,7 @@ import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
 import { _defaultChatConfig } from '@constants/chat';
 import { officialAPIEndpoint } from '@constants/auth';
 import { getMessages, simpleMustache } from '@utils/chat';
+import { runPromptEngineeringScript } from '@utils/promptEngineering';
 import { get, last, update } from 'lodash';
 
 type ReadingThinkingState = "reading" | "not_reading" | "finished";
@@ -27,6 +28,8 @@ const useSubmit = () => {
   const squashSystemMessages = useStore((state) => state.squashSystemMessages);
   const simulateThinking = useStore((state) => state.simulateThinking);
   const prompts = useStore((state) => state.prompts);
+  const promptEngineeringEnabled = useStore((state) => state.promptEngineeringEnabled);
+  const promptEngineeringScript = useStore((state) => state.promptEngineeringScript);
 
   const generateTitle = async (
     message: MessageInterface[]
@@ -96,6 +99,28 @@ const useSubmit = () => {
         }
       })
 
+      // --- PROMPT ENGINEERING SCRIPT INTERJECTION ---
+      let peBodyOverride: Record<string, unknown> | undefined = undefined;
+      if (promptEngineeringEnabled && promptEngineeringScript.trim()) {
+        const peResult = runPromptEngineeringScript(promptEngineeringScript, {
+          messages,
+          config: dummyChats[currentChatIndex].config,
+          apiEndpoint,
+          apiKey,
+          chatTitle: dummyChats[currentChatIndex].title,
+          currentIndex: currentChatIndex,
+        });
+        if ('body' in peResult) {
+          peBodyOverride = peResult.body;
+        } else {
+          // Replace messages with script output
+          messages.length = 0;
+          messages.push(...peResult.messages);
+        }
+      }
+
+      // If full body override is active, skip the rest of the pipeline
+      if (!peBodyOverride) {
       // search and pop the message if it's prefill, assume there is only one prefill message
       // let prefillMessageIndex = -1;
       // messages.forEach((message, index) => {
@@ -238,6 +263,33 @@ const useSubmit = () => {
           apiKey,
           additionalBodyParameters
         );
+      }
+      } // end of !peBodyOverride block
+
+      // --- FULL BODY OVERRIDE PATH ---
+      if (peBodyOverride) {
+        if (!apiKey || apiKey.length === 0) {
+          if (apiEndpoint === officialAPIEndpoint) {
+            throw new Error(t('noApiKeyWarning') as string);
+          }
+          stream = await getChatCompletionStream(
+            useStore.getState().apiEndpoint,
+            [],
+            dummyChats[currentChatIndex].config,
+            undefined,
+            additionalBodyParameters,
+            peBodyOverride
+          );
+        } else {
+          stream = await getChatCompletionStream(
+            useStore.getState().apiEndpoint,
+            [],
+            dummyChats[currentChatIndex].config,
+            apiKey,
+            additionalBodyParameters,
+            peBodyOverride
+          );
+        }
       }
 
       if (stream) {

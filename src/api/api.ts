@@ -8,7 +8,8 @@ export const getChatCompletion = async (
   config: ConfigInterface,
   apiKey?: string,
   // customHeaders?: Record<string, string>
-  additionalBodyParameters?: string
+  additionalBodyParameters?: string,
+  bodyOverride?: Record<string, unknown>
 ) => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -57,15 +58,22 @@ export const getChatCompletion = async (
   };
   const model = modelmapping[config.model] || config.model;
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
+  let body: Record<string, unknown>;
+  if (bodyOverride) {
+    body = bodyOverride;
+  } else {
+    body = {
       messages: messages.map((message)=>({role: message.role, content: message.content})),
       ...config,
       max_tokens: undefined,
       model
-    }),
+    };
+  }
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
   });
   if (!response.ok) throw new Error(await response.text());
 
@@ -79,7 +87,8 @@ export const getChatCompletionStream = async (
   config: ConfigInterface,
   apiKey?: string,
   // customHeaders?: Record<string, string>
-  additionalBodyParameters?: string
+  additionalBodyParameters?: string,
+  bodyOverride?: Record<string, unknown>
 ) => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -147,15 +156,20 @@ export const getChatCompletionStream = async (
     delete additionalBodyParametersJSON.model
   }
 
-  const body = {
-    messages: messages.map((message)=>({role: message.role, content: message.content})),
-    ...config,
-    max_tokens: undefined,
-    stream: true,
-    model,
-    ...additionalBodyParametersJSON
+  let body: Record<string, unknown>;
+  if (bodyOverride) {
+    body = bodyOverride;
+  } else {
+    body = {
+      messages: messages.map((message)=>({role: message.role, content: message.content})),
+      ...config,
+      max_tokens: undefined,
+      stream: true,
+      model,
+      ...additionalBodyParametersJSON
+    };
   }
-  
+
   // console.log(body)
 
   const response = await fetch(endpoint, {

@@ -21,6 +21,8 @@ export interface ConfigSlice {
   systemJailbreak: boolean;
   squashSystemMessages: boolean;
   simulateThinking: boolean;
+  promptEngineeringEnabled: boolean;
+  promptEngineeringScript: string;
   setOpenConfig: (openConfig: boolean) => void;
   setTheme: (theme: Theme) => void;
   setAutoTitle: (autoTitle: boolean) => void;
@@ -38,6 +40,8 @@ export interface ConfigSlice {
   setSystemJailbreak: (systemJailbreak: boolean) => void;
   setSquashSystemMessages: (squashSystemMessages: boolean) => void;
   setSimulateThinking: (simulateThinking: boolean) => void;
+  setPromptEngineeringEnabled: (promptEngineeringEnabled: boolean) => void;
+  setPromptEngineeringScript: (promptEngineeringScript: string) => void;
 }
 
 export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
@@ -58,6 +62,20 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
   systemJailbreak: false,
   squashSystemMessages: true,
   simulateThinking: false,
+  promptEngineeringEnabled: false,
+  promptEngineeringScript: `// Available context:
+//   messages      - Array of {role, content} after mustache substitution
+//   config        - Chat config {model, max_tokens, temperature, presence_penalty, top_p, frequency_penalty}
+//   apiEndpoint   - String
+//   apiKey        - String or undefined
+//   chatTitle     - String
+//   currentIndex  - Number (current chat index)
+// Return ONE of:
+//   { messages }  - Replace only the messages array
+//   { body }      - Full request body override (you control everything)
+// If you throw an error, the request is aborted.
+
+return { messages };`,
   setOpenConfig: (openConfig: boolean) => {
     set((prev: ConfigSlice) => ({
       ...prev,
@@ -158,6 +176,18 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
     set((prev: ConfigSlice) => ({
       ...prev,
       simulateThinking: simulateThinking,
+    }));
+  },
+  setPromptEngineeringEnabled: (promptEngineeringEnabled: boolean) => {
+    set((prev: ConfigSlice) => ({
+      ...prev,
+      promptEngineeringEnabled: promptEngineeringEnabled,
+    }));
+  },
+  setPromptEngineeringScript: (promptEngineeringScript: string) => {
+    set((prev: ConfigSlice) => ({
+      ...prev,
+      promptEngineeringScript: promptEngineeringScript,
     }));
   },
 });

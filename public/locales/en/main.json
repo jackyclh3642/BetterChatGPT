@@ -45,5 +45,9 @@
   "cloneChat": "Clone Chat",
   "cloned": "Cloned",
   "enterToSubmit": "Enter to submit",
-  "submitPlaceholder": "Type a message or click [/] for prompts..."
+  "submitPlaceholder": "Type a message or click [/] for prompts...",
+  "promptEngineering": "Prompt Engineering",
+  "promptEngineeringDescription": "Write JavaScript to transform messages or build a full request body. Available: messages, config, apiEndpoint, apiKey, chatTitle, currentIndex. Return { messages } or { body }.",
+  "preview": "Preview",
+  "bodyOverride": "Body Override"
 }

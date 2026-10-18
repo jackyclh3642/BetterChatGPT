@@ -19,6 +19,9 @@ import TotalTokenCost, { TotalTokenCostToggle } from './TotalTokenCost';
 import ClearConversation from '@components/Menu/MenuOptions/ClearConversation';
 import SquashSystemMessagesToggle from './SquashSystemMessagesToggle';
 import SimulateThinkingToggle from './SimulateThinkingToggle';
+import PromptEngineeringToggle from './PromptEngineeringToggle';
+
+import PromptEngineeringMenu from '@components/PromptEngineeringMenu';
 
 const SettingsMenu = () => {
   const { t } = useTranslation();
@@ -57,9 +60,11 @@ const SettingsMenu = () => {
               <SystemJailbreakToggle />
               <SquashSystemMessagesToggle />
               <SimulateThinkingToggle />
+              <PromptEngineeringToggle />
             </div>
             <ClearConversation />
             <PromptLibraryMenu />
+            <PromptEngineeringMenu />
             <ChatConfigMenu />
             <TotalTokenCost />
           </div>

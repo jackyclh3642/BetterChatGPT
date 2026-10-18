@@ -68,6 +68,8 @@ export const createPartializedState = (state: StoreState) => ({
   systemJailbreak: state.systemJailbreak,
   squashSystemMessages: state.squashSystemMessages,
   simulateThinking: state.simulateThinking,
+  promptEngineeringEnabled: state.promptEngineeringEnabled,
+  promptEngineeringScript: state.promptEngineeringScript,
   generating: state.generating,
 });
 
