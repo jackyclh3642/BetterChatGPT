@@ -8,7 +8,7 @@ import { limitMessageTokens, updateTotalTokenUsed } from '@utils/messageUtils';
 import { _defaultChatConfig } from '@constants/chat';
 import { officialAPIEndpoint } from '@constants/auth';
 import { getMessages, simpleMustache } from '@utils/chat';
-import { runPromptEngineeringScript } from '@utils/promptEngineering';
+import { runPromptEngineeringScript, runPostProcessingScript } from '@utils/promptEngineering';
 import { get, last, update } from 'lodash';
 
 type ReadingThinkingState = "reading" | "not_reading" | "finished";
@@ -30,6 +30,8 @@ const useSubmit = () => {
   const prompts = useStore((state) => state.prompts);
   const promptEngineeringEnabled = useStore((state) => state.promptEngineeringEnabled);
   const promptEngineeringScript = useStore((state) => state.promptEngineeringScript);
+  const postProcessingEnabled = useStore((state) => state.postProcessingEnabled);
+  const postProcessingScript = useStore((state) => state.postProcessingScript);
 
   const generateTitle = async (
     message: MessageInterface[]
@@ -291,13 +293,9 @@ const useSubmit = () => {
           );
           
         const reader = stream.getReader();
-        if (promptEngineeringEnabled) {
-          
-          const reader = stream.getReader();
+        if (postProcessingEnabled && postProcessingScript.trim()) {
           let reading = true;
           let partial = '';
-          let partial_alt = '';
-          let partial_tool_calls = '';
           while (reading && useStore.getState().generating) {
             const { done, value } = await reader.read();
             const result = parseEventSource(
@@ -332,33 +330,36 @@ const useSubmit = () => {
                 updatedChats[currentChatIndex]
               );
 
-              let dummyUpdateMessage = JSON.parse(JSON.stringify(updatedMessages[updatedMessages.length - 1]));
-              const curr = {
-                resultString,
-                resultAltString,
-                resultToolCalls
+              let originalMessage = JSON.parse(JSON.stringify(updatedMessages[updatedMessages.length - 1]));
+              const delta = {
+                content: resultString,
+                alt: resultAltString,
+                toolCalls: resultToolCalls,
               }
 
-              // The resultAlt is null by default, so only set or update it if it's not null
-              if (resultAltString) {
-                if (updatedMessages[updatedMessages.length - 1].alt) {
-                  updatedMessages[updatedMessages.length - 1].alt += resultAltString;
-                } else {
-                  updatedMessages[updatedMessages.length - 1].alt = resultAltString;
+              let updatedMessage = originalMessage;
+              if (postProcessingEnabled && postProcessingScript.trim()) {
+                updatedMessage = runPostProcessingScript(postProcessingScript, {
+                  originalMessage,
+                  delta,
+                });
+              } else {
+                updatedMessage.content += resultString;
+                if (resultAltString) {
+                  updatedMessage.alt = (updatedMessage.alt || '') + resultAltString;
                 }
               }
+              updatedMessages[updatedMessages.length - 1].alt = updatedMessage.alt;
+              updatedMessages[updatedMessages.length - 1].content = updatedMessage.content;
 
-              // Placeholder, get the updated message by consulting the prompt engineering post processing script, then update the last message in the chat with the updated message
-              // End placeholder
-
-
+              // check if the updated message is different from the original message, if so, update the chat state
+              // if (JSON.stringify(updatedMessage) !== JSON.stringify(originalMessage)) {
               setChats(updatedChats);
+              // }
             }
           }
           
         } else {
-
-          const reader = stream.getReader();
           let reading = true;
           let partial = '';
           let partial_alt = '';
@@ -422,7 +423,6 @@ const useSubmit = () => {
               const updatedChats: ChatInterface[] = JSON.parse(
                 JSON.stringify(useStore.getState().chats)
               );
-              // const updatedMessages = updatedChats[currentChatIndex].messages;
               const updatedMessages = getMessages(
                 updatedChats[currentChatIndex]
               );

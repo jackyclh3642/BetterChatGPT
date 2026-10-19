@@ -70,6 +70,8 @@ export const createPartializedState = (state: StoreState) => ({
   simulateThinking: state.simulateThinking,
   promptEngineeringEnabled: state.promptEngineeringEnabled,
   promptEngineeringScript: state.promptEngineeringScript,
+  postProcessingEnabled: state.postProcessingEnabled,
+  postProcessingScript: state.postProcessingScript,
   generating: state.generating,
 });
 

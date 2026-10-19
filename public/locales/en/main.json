@@ -48,6 +48,8 @@
   "submitPlaceholder": "Type a message or click [/] for prompts...",
   "promptEngineering": "Prompt Engineering",
   "promptEngineeringDescription": "Write JavaScript to transform messages or build a full request body. Available: messages, config, apiEndpoint, apiKey, chatTitle, currentIndex. Return { messages } or { body }.",
+  "postProcessing": "Post Processing",
+  "postProcessingDescription": "Write JavaScript to transform each streamed chunk before it is saved. Available: originalMessage (current assistant message), delta ({content, alt, toolCalls}). Return the updated message object.",
   "preview": "Preview",
   "bodyOverride": "Body Override"
 }

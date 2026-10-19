@@ -20,8 +20,10 @@ import ClearConversation from '@components/Menu/MenuOptions/ClearConversation';
 import SquashSystemMessagesToggle from './SquashSystemMessagesToggle';
 import SimulateThinkingToggle from './SimulateThinkingToggle';
 import PromptEngineeringToggle from './PromptEngineeringToggle';
+import PostProcessingToggle from './PostProcessingToggle';
 
 import PromptEngineeringMenu from '@components/PromptEngineeringMenu';
+import PostProcessingMenu from '@components/PostProcessingMenu';
 
 const SettingsMenu = () => {
   const { t } = useTranslation();
@@ -61,10 +63,12 @@ const SettingsMenu = () => {
               <SquashSystemMessagesToggle />
               <SimulateThinkingToggle />
               <PromptEngineeringToggle />
+              <PostProcessingToggle />
             </div>
             <ClearConversation />
             <PromptLibraryMenu />
             <PromptEngineeringMenu />
+            <PostProcessingMenu />
             <ChatConfigMenu />
             <TotalTokenCost />
           </div>

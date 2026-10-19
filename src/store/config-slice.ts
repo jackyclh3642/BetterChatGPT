@@ -23,6 +23,8 @@ export interface ConfigSlice {
   simulateThinking: boolean;
   promptEngineeringEnabled: boolean;
   promptEngineeringScript: string;
+  postProcessingEnabled: boolean;
+  postProcessingScript: string;
   setOpenConfig: (openConfig: boolean) => void;
   setTheme: (theme: Theme) => void;
   setAutoTitle: (autoTitle: boolean) => void;
@@ -42,6 +44,8 @@ export interface ConfigSlice {
   setSimulateThinking: (simulateThinking: boolean) => void;
   setPromptEngineeringEnabled: (promptEngineeringEnabled: boolean) => void;
   setPromptEngineeringScript: (promptEngineeringScript: string) => void;
+  setPostProcessingEnabled: (postProcessingEnabled: boolean) => void;
+  setPostProcessingScript: (postProcessingScript: string) => void;
 }
 
 export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
@@ -76,6 +80,17 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
 // If you throw an error, the request is aborted.
 
 return { messages };`,
+  postProcessingEnabled: false,
+  postProcessingScript: `// Available:
+//   originalMessage - The current last assistant message {role, content, alt, ...}
+//   delta           - The incoming chunk {content: string, alt: string, toolCalls: array}
+// Return: the updated message object.
+
+return {
+  ...originalMessage,
+  content: originalMessage.content + delta.content,
+  alt: (originalMessage.alt || '') + delta.alt,
+};`,
   setOpenConfig: (openConfig: boolean) => {
     set((prev: ConfigSlice) => ({
       ...prev,
@@ -188,6 +203,18 @@ return { messages };`,
     set((prev: ConfigSlice) => ({
       ...prev,
       promptEngineeringScript: promptEngineeringScript,
+    }));
+  },
+  setPostProcessingEnabled: (postProcessingEnabled: boolean) => {
+    set((prev: ConfigSlice) => ({
+      ...prev,
+      postProcessingEnabled: postProcessingEnabled,
+    }));
+  },
+  setPostProcessingScript: (postProcessingScript: string) => {
+    set((prev: ConfigSlice) => ({
+      ...prev,
+      postProcessingScript: postProcessingScript,
     }));
   },
 });
