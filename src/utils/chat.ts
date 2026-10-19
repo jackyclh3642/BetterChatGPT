@@ -66,5 +66,8 @@ export const simpleMustache = (template: string, prompts: Prompt[]) => {
     const max = parseInt(numStr, 10);
     return String(Math.floor(Math.random() * max) + 1);
   });
+  result = result.replace(/{{\s*uuid\s*}}/g, (_) => {
+    return crypto.randomUUID();
+  });
   return result;
 }
