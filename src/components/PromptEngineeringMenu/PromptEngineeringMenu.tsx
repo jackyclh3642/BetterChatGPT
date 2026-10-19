@@ -121,7 +121,7 @@ const PromptEngineeringMenuPopUp = ({
       currentIndex: currentChatIndex,
     });
 
-    console.log('Prompt Engineering Preview Output:', output);
+    // console.log('Prompt Engineering Preview Output:', output);
 
     setPreviewOutput(output);
     setIsPreviewOpen(true);

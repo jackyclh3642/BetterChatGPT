@@ -289,99 +289,160 @@ const useSubmit = () => {
           throw new Error(
             'Oops, the stream is locked right now. Please try again'
           );
+          
         const reader = stream.getReader();
-        let reading = true;
-        let readingThinkingState: ReadingThinkingState = simulateThinking ? "not_reading" : "finished";
-        let partial = '';
-        let partial_alt = '';
-        while (reading && useStore.getState().generating) {
-          const { done, value } = await reader.read();
-          const result = parseEventSource(
-            partial + new TextDecoder().decode(value)
-          );
-          partial = '';
-          partial_alt = '';
-
-          if (result === '[DONE]' || done) {
-            reading = false;
-          } else {
-            // console.log('result', result);
-            const resultString = result.reduce((output: string, curr) => {
-              if (typeof curr === 'string') {
-                partial += curr;
-              } else {
-                const content = curr.choices[0]?.delta?.content ?? null;
-                if (content) output += content;
-              }
-              return output;
-            }, '');
-
-            const resultAltString = result.reduce((output: string, curr) => {
-              if (typeof curr === 'string') {
-                partial_alt += curr;
-              } else {
-                const content = curr.choices[0]?.delta?.reasoning ?? null;
-                if (content) output += content;
-              }
-              return output;
-            }, '');
-
-            const updatedChats: ChatInterface[] = JSON.parse(
-              JSON.stringify(useStore.getState().chats)
+        if (promptEngineeringEnabled) {
+          
+          const reader = stream.getReader();
+          let reading = true;
+          let partial = '';
+          let partial_alt = '';
+          let partial_tool_calls = '';
+          while (reading && useStore.getState().generating) {
+            const { done, value } = await reader.read();
+            const result = parseEventSource(
+              partial + new TextDecoder().decode(value)
             );
-            // const updatedMessages = updatedChats[currentChatIndex].messages;
-            const updatedMessages = getMessages(
-              updatedChats[currentChatIndex]
+            partial = '';
+
+            if (result === '[DONE]' || done) {
+              reading = false;
+            } else {
+
+              let resultString = '';
+              let resultAltString = '';
+              let resultToolCalls = []
+
+              for (const curr of result) {
+                if (typeof curr === 'string') {
+                  partial += curr;
+                } else {
+                  const delta = curr.choices[0]?.delta;
+                  if (delta?.content) resultString += delta.content;
+                  if (delta?.reasoning) resultAltString += delta.reasoning;
+                  if (delta?.tool_calls) resultToolCalls.push(...delta.tool_calls);
+                }
+              }
+
+              const updatedChats: ChatInterface[] = JSON.parse(
+                JSON.stringify(useStore.getState().chats)
+              );
+              // const updatedMessages = updatedChats[currentChatIndex].messages;
+              const updatedMessages = getMessages(
+                updatedChats[currentChatIndex]
+              );
+
+              let dummyUpdateMessage = JSON.parse(JSON.stringify(updatedMessages[updatedMessages.length - 1]));
+              const curr = {
+                resultString,
+                resultAltString,
+                resultToolCalls
+              }
+
+              // The resultAlt is null by default, so only set or update it if it's not null
+              if (resultAltString) {
+                if (updatedMessages[updatedMessages.length - 1].alt) {
+                  updatedMessages[updatedMessages.length - 1].alt += resultAltString;
+                } else {
+                  updatedMessages[updatedMessages.length - 1].alt = resultAltString;
+                }
+              }
+
+              // Placeholder, get the updated message by consulting the prompt engineering post processing script, then update the last message in the chat with the updated message
+              // End placeholder
+
+
+              setChats(updatedChats);
+            }
+          }
+          
+        } else {
+
+          const reader = stream.getReader();
+          let reading = true;
+          let partial = '';
+          let partial_alt = '';
+          let partial_tool_calls = '';
+          while (reading && useStore.getState().generating) {
+            const { done, value } = await reader.read();
+            const result = parseEventSource(
+              partial + new TextDecoder().decode(value)
             );
+            partial = '';
+            partial_alt = '';
+            partial_tool_calls = '';
 
-            const lastMessage = updatedMessages[updatedMessages.length - 1];
-            let lastMessageContent = lastMessage.content + resultString;
-            let lastMessageAlt = lastMessage.alt ?? '';
-            
-            if (simulateThinking && readingThinkingState === "not_reading") {
-              // check if the resultString starts with <thinking> tag, if so, pop it and set readingThinkingState to "reading", redirect the subsequent content to alt field
-              // also, if it is certain that the text cannot be a thinking tag, set readingThinkingState to "finished"
-              if (lastMessageContent.trimStart().startsWith('<thinking>')) {
-                lastMessageContent = lastMessageContent.trimStart().replace('<thinking>', '');
-                readingThinkingState = "reading";
-                lastMessageAlt += lastMessageContent.trimStart();
-                lastMessageContent = '';
-              } else if (!'<thinking>'.startsWith(lastMessageContent.trimStart())) {
-                readingThinkingState = "finished";
+            if (result === '[DONE]' || done) {
+              reading = false;
+            } else {
+              // console.log('result', result);
+              let resultString = result.reduce((output: string, curr) => {
+                if (typeof curr === 'string') {
+                  partial += curr;
+                } else {
+                  const content = curr.choices[0]?.delta?.content ?? null;
+                  if (content) output += content;
+                }
+                return output;
+              }, '');
+
+              let resultAltString = result.reduce((output: string, curr) => {
+                if (typeof curr === 'string') {
+                  partial_alt += curr;
+                } else {
+                  const content = curr.choices[0]?.delta?.reasoning ?? null;
+                  if (content) output += content;
+                }
+                return output;
+              }, '');
+
+              let resultToolCallsString = result.reduce((output: string, curr) => {
+                if (typeof curr === 'string') {
+                  partial_tool_calls += curr;
+                } else {
+                  const content = curr.choices[0]?.delta?.tool_calls?.[0] ?? null;
+                  if (content) output += JSON.stringify(content);
+                }
+                return output;
+              }, '');
+
+              // console.log('resultToolCallsString', resultToolCallsString);
+
+              // use resultToolCallsString as resultString if the latter is empty and the former is not
+              if (!resultString && resultToolCallsString) {
+                // let resultToolCallsJson = JSON.parse(resultToolCallsString);
+                // resultString = resultToolCallsJson?.display_stream ?? '';
+                resultString = resultToolCallsString;
               }
-            }
-            
-            if (simulateThinking && readingThinkingState === "reading") {
-              // redirect the content to alt field
-              lastMessageAlt += lastMessageContent;
-              // check if the resultString contains </thinking> tag, if so, pop it and set readingThinkingState to "finished", keep the previous content in alt field and the subsequent content in content field
-              if (lastMessageAlt.includes('</thinking>')) {
-                const parts = lastMessageAlt.split('</thinking>');
-                lastMessageAlt = parts[0].trimEnd();
-                lastMessageContent = parts.slice(1).join('</thinking>').trimStart();
-                readingThinkingState = "finished";
-              } else {
-                lastMessageContent = '';
+
+              if (!resultString && !resultAltString && !resultToolCallsString) {
+                continue;
               }
-            }
 
-            lastMessage.content = lastMessageContent;
-            if (simulateThinking && lastMessageAlt) lastMessage.alt = lastMessageAlt;
+              const updatedChats: ChatInterface[] = JSON.parse(
+                JSON.stringify(useStore.getState().chats)
+              );
+              // const updatedMessages = updatedChats[currentChatIndex].messages;
+              const updatedMessages = getMessages(
+                updatedChats[currentChatIndex]
+              );
+              updatedMessages[updatedMessages.length - 1].content += resultString;
 
-            // The resultAlt is null by default, so only set or update it if it's not null
-            if (resultAltString) {
-              if (updatedMessages[updatedMessages.length - 1].alt) {
-                updatedMessages[updatedMessages.length - 1].alt += resultAltString;
-              } else {
-                updatedMessages[updatedMessages.length - 1].alt = resultAltString;
+              // The resultAlt is null by default, so only set or update it if it's not null
+              if (resultAltString) {
+                if (updatedMessages[updatedMessages.length - 1].alt) {
+                  updatedMessages[updatedMessages.length - 1].alt += resultAltString;
+                } else {
+                  updatedMessages[updatedMessages.length - 1].alt = resultAltString;
+                }
               }
-            }
 
-            // strip left white space for good measure
-            updatedMessages[updatedMessages.length - 1].content = updatedMessages[
-              updatedMessages.length - 1
-            ].content.trimStart();
-            setChats(updatedChats);
+              // strip left white space for good measure
+              updatedMessages[updatedMessages.length - 1].content = updatedMessages[
+                updatedMessages.length - 1
+              ].content.trimStart();
+              setChats(updatedChats);
+            }
           }
         }
         if (useStore.getState().generating) {

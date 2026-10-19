@@ -61,5 +61,10 @@ export const simpleMustache = (template: string, prompts: Prompt[]) => {
     const regex = new RegExp(`{{\\s*${prompt.name}\\s*}}`, 'g');
     result = result.replace(regex, prompt.prompt);
   });
+  // built-in {{roll N}} macro — each match gets a new random number 1..N
+  result = result.replace(/{{\s*roll\s+(\d+)\s*}}/g, (_, numStr) => {
+    const max = parseInt(numStr, 10);
+    return String(Math.floor(Math.random() * max) + 1);
+  });
   return result;
 }
