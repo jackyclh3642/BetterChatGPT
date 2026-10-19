@@ -69,30 +69,9 @@ export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
   squashSystemMessages: true,
   simulateThinking: false,
   promptEngineeringEnabled: false,
-  promptEngineeringScript: `// Available context:
-//   messages      - Array of {role, content} after mustache substitution
-//   config        - Chat config {model, max_tokens, temperature, presence_penalty, top_p, frequency_penalty}
-//   apiEndpoint   - String
-//   apiKey        - String or undefined
-//   chatTitle     - String
-//   currentIndex  - Number (current chat index)
-// Return ONE of:
-//   { messages }  - Replace only the messages array
-//   { body }      - Full request body override (you control everything)
-// If you throw an error, the request is aborted.
-
-return { messages };`,
+  promptEngineeringScript: '',
   postProcessingEnabled: false,
-  postProcessingScript: `// Available:
-//   originalMessage - The current last assistant message {role, content, alt, ...}
-//   delta           - The incoming chunk {content: string, alt: string, toolCalls: array}
-// Return: the updated message object.
-
-return {
-  ...originalMessage,
-  content: originalMessage.content + delta.content,
-  alt: (originalMessage.alt || '') + delta.alt,
-};`,
+  postProcessingScript: '',
   hideIdentifierMessages: false,
   setOpenConfig: (openConfig: boolean) => {
     set((prev: ConfigSlice) => ({

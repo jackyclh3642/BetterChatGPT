@@ -23,6 +23,8 @@ const ExportChat = () => {
             chats: useStore.getState().chats,
             folders: useStore.getState().folders,
             version: 1,
+            promptEngineeringScript: useStore.getState().promptEngineeringScript,
+            postProcessingScript: useStore.getState().postProcessingScript,
           };
           downloadFile(fileData, getToday());
         }}

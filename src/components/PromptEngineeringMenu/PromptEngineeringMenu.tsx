@@ -145,6 +145,26 @@ const PromptEngineeringMenuPopUp = ({
             <button
               className='px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
               onClick={() =>
+                insertTemplate(`// Available context:
+//   messages      - Array of {role, content} after mustache substitution
+//   config        - Chat config {model, max_tokens, temperature, presence_penalty, top_p, frequency_penalty}
+//   apiEndpoint   - String
+//   apiKey        - String or undefined
+//   chatTitle     - String
+//   currentIndex  - Number (current chat index)
+// Return ONE of:
+//   { messages }  - Replace only the messages array
+//   { body }      - Full request body override (you control everything)
+// If you throw an error, the request is aborted.
+
+return { messages };`)
+              }
+            >
+              Boilerplate
+            </button>
+            <button
+              className='px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+              onClick={() =>
                 insertTemplate(`// Reorder: system first, then alternating user/assistant
 const ordered = [];
 const systemMsgs = messages.filter(m => m.role === 'system');

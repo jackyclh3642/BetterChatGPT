@@ -103,6 +103,23 @@ const PostProcessingMenuPopUp = ({
             <button
               className='px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
               onClick={() =>
+                insertTemplate(`// Available:
+//   originalMessage - The current last assistant message {role, content, alt, ...}
+//   delta           - The incoming chunk {content: string, alt: string, toolCalls: array}
+// Return: the updated message object.
+
+return {
+  ...originalMessage,
+  content: originalMessage.content + delta.content,
+  alt: (originalMessage.alt || '') + delta.alt,
+};`)
+              }
+            >
+              Pass-through
+            </button>
+            <button
+              className='px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+              onClick={() =>
                 insertTemplate(`// Append content normally, but strip thinking tags
 const thinkingRegex = /<thinking>[\\s\\S]*?<\\/thinking>/g;
 return {

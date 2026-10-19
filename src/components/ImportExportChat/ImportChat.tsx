@@ -17,6 +17,10 @@ const ImportChat = () => {
   const { t } = useTranslation();
   const setChats = useStore.getState().setChats;
   const setFolders = useStore.getState().setFolders;
+  const setPromptEngineeringScript = useStore.getState().setPromptEngineeringScript;
+  const setPostProcessingScript = useStore.getState().setPostProcessingScript;
+  const getPromptEngineeringScript = useStore.getState().promptEngineeringScript;
+  const getPostProcessingScript = useStore.getState().postProcessingScript;
   const inputRef = useRef<HTMLInputElement>(null);
   const [alert, setAlert] = useState<{
     message: string;
@@ -135,6 +139,13 @@ const ImportChat = () => {
                     } else {
                       setChats(parsedData.chats);
                     }
+                  }
+                  // use the promptEngineeringScript from the imported data only if the current script is empty
+                  if (typeof parsedData.promptEngineeringScript === 'string' && !getPromptEngineeringScript) {
+                    setPromptEngineeringScript(parsedData.promptEngineeringScript);
+                  }
+                  if (typeof parsedData.postProcessingScript === 'string' && !getPostProcessingScript) {
+                    setPostProcessingScript(parsedData.postProcessingScript);
                   }
 
                   setAlert({ message: 'Succesfully imported!', success: true });

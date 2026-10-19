@@ -7,6 +7,8 @@ export interface ExportBase {
 export interface ExportV1 extends ExportBase {
   chats?: ChatInterface[];
   folders: FolderCollection;
+  promptEngineeringScript?: string;
+  postProcessingScript?: string;
 }
 
 // export type OpenAIChat = {
