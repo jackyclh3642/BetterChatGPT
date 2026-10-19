@@ -81,11 +81,6 @@ const PromptLibraryMenuPopUp = ({
     e.target.style.maxHeight = `${e.target.scrollHeight}px`;
   };
 
-  const handleOnBlur = (e: React.FocusEvent<HTMLTextAreaElement, Element>) => {
-    e.target.style.height = 'auto';
-    e.target.style.maxHeight = '2.5rem';
-  };
-
   useEffect(() => {
     _setPrompts(prompts);
   }, [prompts]);
@@ -116,7 +111,6 @@ const PromptLibraryMenuPopUp = ({
                 <textarea
                   className='m-0 resize-none rounded-lg bg-transparent overflow-y-hidden leading-7 p-1 focus:ring-1 focus:ring-blue w-full max-h-10 transition-all'
                   onFocus={handleOnFocus}
-                  onBlur={handleOnBlur}
                   onChange={(e) => {
                     _setPrompts((prev) => {
                       const newPrompts = [...prev];
@@ -133,7 +127,6 @@ const PromptLibraryMenuPopUp = ({
                 <textarea
                   className='m-0 resize-none rounded-lg bg-transparent overflow-y-hidden leading-7 p-1 focus:ring-1 focus:ring-blue w-full max-h-10 transition-all'
                   onFocus={handleOnFocus}
-                  onBlur={handleOnBlur}
                   onChange={(e) => {
                     _setPrompts((prev) => {
                       const newPrompts = [...prev];
