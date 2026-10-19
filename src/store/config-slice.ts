@@ -25,6 +25,7 @@ export interface ConfigSlice {
   promptEngineeringScript: string;
   postProcessingEnabled: boolean;
   postProcessingScript: string;
+  hideIdentifierMessages: boolean;
   setOpenConfig: (openConfig: boolean) => void;
   setTheme: (theme: Theme) => void;
   setAutoTitle: (autoTitle: boolean) => void;
@@ -46,6 +47,7 @@ export interface ConfigSlice {
   setPromptEngineeringScript: (promptEngineeringScript: string) => void;
   setPostProcessingEnabled: (postProcessingEnabled: boolean) => void;
   setPostProcessingScript: (postProcessingScript: string) => void;
+  setHideIdentifierMessages: (hideIdentifierMessages: boolean) => void;
 }
 
 export const createConfigSlice: StoreSlice<ConfigSlice> = (set, get) => ({
@@ -91,6 +93,7 @@ return {
   content: originalMessage.content + delta.content,
   alt: (originalMessage.alt || '') + delta.alt,
 };`,
+  hideIdentifierMessages: false,
   setOpenConfig: (openConfig: boolean) => {
     set((prev: ConfigSlice) => ({
       ...prev,
@@ -215,6 +218,12 @@ return {
     set((prev: ConfigSlice) => ({
       ...prev,
       postProcessingScript: postProcessingScript,
+    }));
+  },
+  setHideIdentifierMessages: (hideIdentifierMessages: boolean) => {
+    set((prev: ConfigSlice) => ({
+      ...prev,
+      hideIdentifierMessages: hideIdentifierMessages,
     }));
   },
 });

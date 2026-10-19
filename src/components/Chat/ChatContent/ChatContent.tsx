@@ -38,6 +38,9 @@ const ChatContent = () => {
   const advancedMode = useStore((state) => state.advancedMode);
   const generating = useStore.getState().generating;
   const hideSideMenu = useStore((state) => state.hideSideMenu);
+  const hideIdentifierMessages = useStore(
+    (state) => state.hideIdentifierMessages
+  );
 
   const saveRef = useRef<HTMLDivElement>(null);
 
@@ -67,7 +70,8 @@ const ChatContent = () => {
               <NewMessageButton messageIndex={-1} />
             )} */}
             {messages?.map((message, index) => (
-              (advancedMode || index !== 0 || message.role !== 'system') && (
+              (advancedMode || index !== 0 || message.role !== 'system') &&
+              !(hideIdentifierMessages && message.identifier) && (
                 <React.Fragment key={index}>
                   <Message
                     role={message.role}

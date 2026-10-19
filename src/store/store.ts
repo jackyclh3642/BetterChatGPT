@@ -72,6 +72,7 @@ export const createPartializedState = (state: StoreState) => ({
   promptEngineeringScript: state.promptEngineeringScript,
   postProcessingEnabled: state.postProcessingEnabled,
   postProcessingScript: state.postProcessingScript,
+  hideIdentifierMessages: state.hideIdentifierMessages,
   generating: state.generating,
 });
 

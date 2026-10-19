@@ -21,6 +21,7 @@ import SquashSystemMessagesToggle from './SquashSystemMessagesToggle';
 import SimulateThinkingToggle from './SimulateThinkingToggle';
 import PromptEngineeringToggle from './PromptEngineeringToggle';
 import PostProcessingToggle from './PostProcessingToggle';
+import HideIdentifierMessagesToggle from './HideIdentifierMessagesToggle';
 
 import PromptEngineeringMenu from '@components/PromptEngineeringMenu';
 import PostProcessingMenu from '@components/PostProcessingMenu';
@@ -64,6 +65,7 @@ const SettingsMenu = () => {
               <SimulateThinkingToggle />
               <PromptEngineeringToggle />
               <PostProcessingToggle />
+              <HideIdentifierMessagesToggle />
             </div>
             <ClearConversation />
             <PromptLibraryMenu />
