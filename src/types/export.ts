@@ -9,6 +9,19 @@ export interface ExportV1 extends ExportBase {
   folders: FolderCollection;
   promptEngineeringScript?: string;
   postProcessingScript?: string;
+  promptEngineeringEnabled?: boolean;
+  postProcessingEnabled?: boolean;
+  // API settings (only included in password-protected exports)
+  apiEndpoint?: string;
+  apiKey?: string;
+  additionalBodyParameters?: string;
+}
+
+export interface EncryptedExport {
+  version: 'encrypted';
+  salt: string;
+  iv: string;
+  ciphertext: string;
 }
 
 // export type OpenAIChat = {
